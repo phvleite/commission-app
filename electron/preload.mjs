@@ -37,7 +37,6 @@ async function init() {
     vendasMigrations(db);
     comissoesMigrations(db);
 
-    // Salvar banco já inicializado
     saveDatabase();
 }
 
@@ -51,13 +50,22 @@ function saveDatabase() {
 // Inicializar banco ANTES de expor API
 await init();
 
-// Agora sim, expor API
+// Instanciar APIs
+const setores = setoresAPI(db, saveDatabase);
+const colaboradores = colaboradoresAPI(db, saveDatabase);
+const situacoes = situacoesAPI(db, saveDatabase);
+const comissoes = comissoesAPI(db, saveDatabase);
+
+// vendas precisa receber comissoesAPI para recalcular comissões
+const vendas = vendasAPI(db, saveDatabase, comissoes);
+
+// Expor API no frontend
 contextBridge.exposeInMainWorld("api", {
-    setores: setoresAPI(db, saveDatabase),
-    colaboradores: colaboradoresAPI(db, saveDatabase),
-    situacoes: situacoesAPI(db, saveDatabase),
-    vendas: vendasAPI(db, saveDatabase),
-    comissoes: comissoesAPI(db, saveDatabase),
+    setores,
+    colaboradores,
+    situacoes,
+    vendas,
+    comissoes,
 
     manutencao: {
         async dropVendas() {
@@ -69,6 +77,7 @@ contextBridge.exposeInMainWorld("api", {
 
         async dropComissoes() {
             db.run("DROP TABLE IF EXISTS comissoes");
+            db.run("DROP TABLE IF EXISTS venda_comissoes_setores");
             comissoesMigrations(db);
             saveDatabase();
             return true;
