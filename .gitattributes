@@ -1,0 +1,19 @@
+# Padroniza todos os arquivos de texto para LF no repositório
+* text=auto eol=lf
+
+# Arquivos binários (não devem ser convertidos)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.pdf binary
+*.zip binary
+*.exe binary
+
+# Evita conversão de arquivos do Electron
+electron/**/* text eol=lf
+
+# Evita conversão de arquivos do React
+renderer/**/* text eol=lf
