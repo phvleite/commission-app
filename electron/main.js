@@ -1,11 +1,9 @@
-import { app, BrowserWindow } from "electron";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { app, BrowserWindow } = require("electron");
+const path = require("path");
 
 function createWindow() {
+    const userDataPath = app.getPath("userData");
+
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
@@ -14,11 +12,16 @@ function createWindow() {
             contextIsolation: true,
             sandbox: false,
             nodeIntegration: false,
-            webSecurity: true
+            webSecurity: true,
+            additionalArguments: [`--userDataPath=${userDataPath}`]
         }
     });
 
-    win.loadURL("http://localhost:5173");
+    if (!app.isPackaged) {
+        win.loadURL("http://localhost:5173");
+    } else {
+        win.loadFile(path.join(__dirname, "../renderer/dist/index.html"));
+    }
 }
 
 app.whenReady().then(createWindow);

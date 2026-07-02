@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./components/ToastContext";
 
 import MainLayout from "./layout/MainLayout";
@@ -14,7 +14,7 @@ import ManutencaoPage from "./pages/Manutencao";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <ToastProvider>
-        <BrowserRouter>
+        <HashRouter>
             <Routes>
                 <Route path="/" element={<MainLayout />}>
                     <Route index element={<Home />} />
@@ -26,6 +26,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     <Route path="manutencao" element={<ManutencaoPage />} />
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     </ToastProvider>
 );

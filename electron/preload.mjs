@@ -1,26 +1,62 @@
 import { contextBridge } from "electron";
 import fs from "fs";
 import path from "path";
-import initSqlJs from "sql.js";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
-import { setoresAPI, setoresMigrations } from "./database/setores.js";
-import { colaboradoresAPI, colaboradoresMigrations } from "./database/colaboradores.js";
-import { situacoesAPI, situacoesMigrations } from "./database/situacoes.js";
-import { vendasAPI, vendasMigrations } from "./database/vendas.js";
-import { comissoesAPI, comissoesMigrations } from "./database/comissoes.js";
+let initSqlJs = null;
+
+import { setoresAPI, setoresMigrations } from "./database/setores.mjs";
+import { colaboradoresAPI, colaboradoresMigrations } from "./database/colaboradores.mjs";
+import { situacoesAPI, situacoesMigrations } from "./database/situacoes.mjs";
+import { vendasAPI, vendasMigrations } from "./database/vendas.mjs";
+import { comissoesAPI, comissoesMigrations } from "./database/comissoes.mjs";
+
+// ------------------------------------------------------------
+// CONFIGURAÇÕES BÁSICAS
+// ------------------------------------------------------------
+process.env.NODE_ENV = "development"; // força DEV no modo dev
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.join(process.cwd(), "database.sqlite");
+// Recebe o caminho do AppData enviado pelo main.js
+const userDataPath = process.argv
+    .find((arg) => arg.startsWith("--userDataPath="))
+    ?.replace("--userDataPath=", "");
+
+// Caminho do banco (DEV vs PRODUÇÃO)
+const isDev = process.env.NODE_ENV === "development";
+
+const dbPath = isDev
+    ? path.join(__dirname, "database.sqlite") // DEV → electron/database.sqlite
+    : path.join(userDataPath, "database.sqlite"); // PRODUÇÃO → %APPDATA%/commission-app/database.sqlite
 
 let db = null;
 let SQL = null;
 
+// ------------------------------------------------------------
+// INICIALIZAÇÃO DO BANCO + SQL.js
+// ------------------------------------------------------------
 async function init() {
+    // carrega o módulo `sql.js` dinamicamente — em produção usamos o arquivo copiado em `resources`
+    if (!initSqlJs) {
+        if (isDev) {
+            const mod = await import("sql.js");
+            initSqlJs = mod.default || mod.initSqlJs || mod;
+        } else {
+            const sqlJsPath = path.join(process.resourcesPath, "sql.js");
+            const mod = await import(pathToFileURL(sqlJsPath).href);
+            initSqlJs = mod.default || mod.initSqlJs || mod;
+        }
+    }
+
     SQL = await initSqlJs({
-        locateFile: (file) => new URL(file, "http://localhost:5173").toString()
+        locateFile: (file) => {
+            if (isDev) {
+                return path.join(__dirname, file); // DEV → electron/sql-wasm.wasm
+            }
+            return path.join(process.resourcesPath, file); // PRODUÇÃO → resources/sql-wasm.wasm
+        }
     });
 
     if (fs.existsSync(dbPath)) {
@@ -30,7 +66,6 @@ async function init() {
         db = new SQL.Database();
     }
 
-    // Rodar TODAS as migrations
     setoresMigrations(db);
     colaboradoresMigrations(db);
     situacoesMigrations(db);
@@ -40,6 +75,9 @@ async function init() {
     saveDatabase();
 }
 
+// ------------------------------------------------------------
+// SALVAR BANCO
+// ------------------------------------------------------------
 function saveDatabase() {
     setTimeout(() => {
         const data = db.export();
@@ -47,19 +85,17 @@ function saveDatabase() {
     }, 0);
 }
 
-// Inicializar banco ANTES de expor API
 await init();
 
-// Instanciar APIs
+// ------------------------------------------------------------
+// API EXPOSTA PARA O FRONT-END
+// ------------------------------------------------------------
 const setores = setoresAPI(db, saveDatabase);
 const colaboradores = colaboradoresAPI(db, saveDatabase);
 const situacoes = situacoesAPI(db, saveDatabase);
 const comissoes = comissoesAPI(db, saveDatabase);
-
-// vendas precisa receber comissoesAPI para recalcular comissões
 const vendas = vendasAPI(db, saveDatabase, comissoes);
 
-// Expor API no frontend
 contextBridge.exposeInMainWorld("api", {
     setores,
     colaboradores,
