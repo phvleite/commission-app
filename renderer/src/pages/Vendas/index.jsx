@@ -4,6 +4,7 @@ import VendaList from "./VendaList.jsx";
 
 export default function VendasPage() {
     const [vendas, setVendas] = useState([]);
+    const [editId, setEditId] = useState(null);
 
     async function carregarVendas() {
         const lista = await window.api.vendas.listar();
@@ -15,12 +16,22 @@ export default function VendasPage() {
     }, []);
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Vendas</h2>
+        <div>
+            <VendaForm
+                vendaId={editId}
+                onSave={(resultado) => {
+                    setEditId(null); // limpa o formulário
+                    carregarVendas();
+                }}
+                onCancel={() => {
+                    setEditId(null);
+                }}
+            />
 
-            <VendaForm onSave={carregarVendas} />
-
-            <VendaList vendas={vendas} />
+            <VendaList
+                vendas={vendas}
+                onEdit={(id) => setEditId(id)}
+            />
         </div>
     );
 }

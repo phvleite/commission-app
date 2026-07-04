@@ -11,6 +11,7 @@ import SituacoesPage from "./pages/Situacoes";
 import VendasPage from "./pages/Vendas";
 import ComissoesPage from "./pages/Comissoes";
 import ManutencaoPage from "./pages/Manutencao";
+import "./styles/theme.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <ToastProvider>

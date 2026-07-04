@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useToast } from "../../components/ToastContext";
 
 export default function SetorForm({ onSubmit }) {
@@ -23,7 +23,7 @@ export default function SetorForm({ onSubmit }) {
         const valor = Number(percentual);
 
         if (isNaN(valor) || valor <= 0) {
-            addToast("Percentual inválido. Informe um valor maior que zero.", "error");
+            addToast("Percentual inválido.", "error");
             return;
         }
 
@@ -36,31 +36,31 @@ export default function SetorForm({ onSubmit }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+        <form onSubmit={handleSubmit} className="form-card">
             <h3>Novo Setor</h3>
 
-            <div>
+            <div className="form-group">
                 <label>Nome:</label>
-                <br />
                 <input
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Ex: Vendas"
+                    className="input"
                 />
             </div>
 
-            <div>
+            <div className="form-group">
                 <label>Percentual (%):</label>
-                <br />
                 <input
                     type="number"
                     value={percentual}
                     onChange={(e) => setPercentual(e.target.value)}
                     placeholder="Ex: 10"
+                    className="input"
                 />
             </div>
 
-            <button type="submit" style={{ marginTop: 10 }}>
+            <button type="submit" className="btn-primary">
                 Cadastrar
             </button>
         </form>

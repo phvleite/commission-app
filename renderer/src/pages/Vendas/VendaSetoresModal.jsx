@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { formatCurrencyFromDatabase } from "../../utils/formatCurrency";
+import { formatDateFromDatabase } from "../../utils/formatDate";
 
 export default function VendaSetoresModal({ data, onClose }) {
     const [setores, setSetores] = useState([]);
@@ -34,7 +36,7 @@ export default function VendaSetoresModal({ data, onClose }) {
                     width: "600px"
                 }}
             >
-                <h3>Comissões por Setor — {data}</h3>
+                <h3>Comissões por Setor — {formatDateFromDatabase(data)}</h3>
 
                 <table border="1" cellPadding="6" style={{ width: "100%", marginTop: 10 }}>
                     <thead>
@@ -52,7 +54,7 @@ export default function VendaSetoresModal({ data, onClose }) {
                             <tr key={s.id}>
                                 <td>{s.setor}</td>
                                 <td>{s.percentual_aplicado}%</td>
-                                <td>R$ {s.valor_total_setor.toFixed(2)}</td>
+                                <td>R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
                                 <td>{s.qtd_total_colaboradores}</td>
                                 <td>{s.qtd_aptos_colaboradores}</td>
                             </tr>

@@ -1,20 +1,28 @@
-export function formatCurrency(value) {
-    // Remove tudo que não for número
+// Para valores digitados pelo usuário
+export function formatCurrencyInput(value) {
     const onlyNumbers = value.replace(/\D/g, "");
 
-    // Se estiver vazio, retorna vazio
     if (!onlyNumbers) return "";
 
-    // Converte para número e divide por 100 para ter centavos
-    const numberValue = (Number(onlyNumbers) / 100).toFixed(2);
+    const numberValue = Number(onlyNumbers) / 100;
 
-    // Formata para BRL
     return new Intl.NumberFormat("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(numberValue);
 }
 
+// Para valores vindos do banco (centavos → reais)
+export function formatCurrencyFromDatabase(centavos) {
+    const numberValue = centavos / 100;
+
+    return new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(numberValue);
+}
+
+// Converte texto formatado para número (reais)
 export function currencyToNumber(formatted) {
     if (!formatted) return 0;
 

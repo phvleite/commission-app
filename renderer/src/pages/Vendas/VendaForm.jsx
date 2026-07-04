@@ -1,31 +1,36 @@
 import { useState, useEffect } from "react";
 import { useToast } from "../../components/ToastContext.jsx";
-import { formatCurrency, currencyToNumber } from "../../utils/formatCurrency";
+import { normalizeDateForInput } from "../../utils/formatDate";
+import { formatCurrencyInput, formatCurrencyFromDatabase, currencyToNumber } from "../../utils/formatCurrency";
 
-export default function VendaForm({ onSave, vendaId }) {
+export default function VendaForm({ onSave, onCancel, vendaId }) {
     const [data, setData] = useState("");
     const [valor, setValor] = useState("");
     const { addToast } = useToast();
 
     const editMode = !!vendaId;
 
-    // Carregar venda para edição
     useEffect(() => {
-        async function carregar() {
-            if (!editMode) return;
+        if (!editMode) {
+            setData("");
+            setValor("");
+            return;
+        }
 
+        async function carregar() {
             const venda = await window.api.vendas.buscarPorId(vendaId);
             if (venda) {
-                setData(venda.data);
-                setValor(formatCurrency(venda.valor.toString()));
+                setData(normalizeDateForInput(venda.data));
+                setValor(formatCurrencyFromDatabase(venda.valor));
             }
         }
+
         carregar();
     }, [vendaId]);
 
     function handleValorChange(e) {
         const texto = e.target.value;
-        const formatado = formatCurrency(texto);
+        const formatado = formatCurrencyInput(texto);
         setValor(formatado);
     }
 
@@ -43,7 +48,6 @@ export default function VendaForm({ onSave, vendaId }) {
         }
 
         if (!editMode) {
-            // Criar nova venda
             const vendaExistente = await window.api.vendas.buscarPorData(data);
             if (vendaExistente) {
                 addToast("Já existe uma venda registrada para esta data.", "error");
@@ -53,12 +57,23 @@ export default function VendaForm({ onSave, vendaId }) {
             await window.api.vendas.salvar(data, valorConvertido);
             addToast("Venda registrada e comissões geradas.", "success");
         } else {
-            // Editar venda existente
-            await window.api.vendas.alterar(vendaId, data, valorConvertido);
+            const resultado = await window.api.vendas.alterar(vendaId, data, valorConvertido);
+
+            if (!resultado.ok) {
+                addToast(resultado.erro, "error");
+                return;
+            }
+
             addToast("Venda alterada e comissões recalculadas.", "success");
         }
 
         onSave();
+    }
+
+    function cancelar() {
+        setData("");
+        setValor("");
+        onCancel();
     }
 
     return (
@@ -88,6 +103,10 @@ export default function VendaForm({ onSave, vendaId }) {
 
             <button onClick={salvar}>
                 {editMode ? "Salvar Alterações" : "Salvar"}
+            </button>
+
+            <button onClick={cancelar}>
+                Cancelar
             </button>
         </div>
     );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import SetorForm from "./SetorForm";
 import SetorList from "./SetorList";
 
@@ -23,38 +23,40 @@ export default function SetoresPage() {
     useEffect(() => {
         carregarSetores();
 
-        // 🔥 Atualiza automaticamente quando setores mudam
         function atualizar() {
             carregarSetores();
         }
 
         window.addEventListener("setores-atualizados", atualizar);
-
-        return () => {
-            window.removeEventListener("setores-atualizados", atualizar);
-        };
+        return () => window.removeEventListener("setores-atualizados", atualizar);
     }, []);
 
     const soma = setores
-        .filter((s) => s[4] === 1) // soma apenas ativos
+        .filter((s) => s[4] === 1)
         .reduce((acc, setor) => acc + setor[2], 0);
 
     const somaOk = soma === 100;
 
     return (
-        <div style={{ padding: 20 }}>
-            <h1>Setores</h1>
+        <div className="page">
+            <h2>Setores</h2>
 
             <SetorForm onSubmit={criarSetor} />
 
-            <div style={{ marginTop: 20 }}>
-                <strong>Soma dos percentuais: </strong>
-                <span style={{ color: somaOk ? "green" : "red" }}>{soma}%</span>
+            <div className="info-line">
+                <strong>Soma dos percentuais:</strong>
+                <span className={somaOk ? "text-success" : "text-danger"}>
+                    {soma}%
+                </span>
             </div>
 
-            <hr />
+            <hr className="gold-line" />
 
-            <SetorList setores={setores} onExcluir={excluirSetor} onAtualizar={carregarSetores} />
+            <SetorList
+                setores={setores}
+                onExcluir={excluirSetor}
+                onAtualizar={carregarSetores}
+            />
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDateFromDatabase } from "../../utils/formatDate";
 
 export default function SituacaoList({
     situacoes,
@@ -53,13 +54,13 @@ export default function SituacaoList({
                             <>
                                 <input
                                     type="date"
-                                    value={editDataInicial}
+                                    value={formatDateFromDatabase(editDataInicial)}
                                     onChange={(e) => setEditDataInicial(e.target.value)}
                                 />
 
                                 <input
                                     type="date"
-                                    value={editDataFinal}
+                                    value={formatDateFromDatabase(editDataFinal)}
                                     onChange={(e) => setEditDataFinal(e.target.value)}
                                 />
 

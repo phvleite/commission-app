@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
 
 export default function App() {
     return (
-        <div style={{ padding: 20 }}>
-            <h1>Commission App</h1>
-            <p>Base do projeto carregada com sucesso!</p>
-        </div>
+        <>
+            <Sidebar />
+            <div className="main-content">
+                <Outlet />
+            </div>
+        </>
     );
 }

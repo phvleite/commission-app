@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { formatCurrencyFromDatabase } from "../../utils/formatCurrency";
+import { formatDateFromDatabase } from "../../utils/formatDate";
 import VendaSetoresModal from "./VendaSetoresModal.jsx";
 
 export default function VendaList({ vendas, onEdit }) {
@@ -22,9 +24,9 @@ export default function VendaList({ vendas, onEdit }) {
                 <tbody>
                     {vendas.map((v) => (
                         <tr key={v.id}>
-                            <td>{v.data}</td>
-                            <td>R$ {v.valor.toFixed(2)}</td>
-                            <td>R$ {v.valor_comissao_total.toFixed(2)}</td>
+                            <td>{formatDateFromDatabase(v.data)}</td>
+                            <td>R$ {formatCurrencyFromDatabase(v.valor)}</td>
+                            <td>R$ {formatCurrencyFromDatabase(v.valor_comissao_total)}</td>
 
                             <td>
                                 <button onClick={() => setModalData(v.data)}>

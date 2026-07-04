@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDateFromDatabase } from "../../utils/formatDate";
 
 export default function ColaboradorList({
     colaboradores,
@@ -70,7 +71,7 @@ export default function ColaboradorList({
                                     <label>Data de admissão:</label>
                                     <input
                                         type="date"
-                                        value={editAdmissao}
+                                        value={formatDateFromDatabase(editAdmissao)}
                                         onChange={(e) => setEditAdmissao(e.target.value)}
                                     />
                                 </div>
@@ -79,7 +80,7 @@ export default function ColaboradorList({
                                     <label>Data de demissão (opcional):</label>
                                     <input
                                         type="date"
-                                        value={editDemissao}
+                                        value={formatDateFromDatabase(editDemissao)}
                                         onChange={(e) => setEditDemissao(e.target.value)}
                                     />
                                 </div>
@@ -103,7 +104,7 @@ export default function ColaboradorList({
                                 <span>
                                     {status(col)}
                                     {col.data_demissao
-                                        ? ` (demitido em ${col.data_demissao})`
+                                        ? ` (demitido em ${formatDateFromDatabase(col.data_demissao)})`
                                         : ""}
                                 </span>
 
