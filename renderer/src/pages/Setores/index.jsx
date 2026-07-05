@@ -4,7 +4,8 @@ import SetorList from "./SetorList";
 
 export default function SetoresPage() {
     const [setores, setSetores] = useState([]);
-
+    const [mostrarForm, setMostrarForm] = useState(false);
+    
     async function carregarSetores() {
         const data = await window.api.setores.listarTodos();
         setSetores(data);
@@ -41,7 +42,14 @@ export default function SetoresPage() {
         <div className="page">
             <h2>Setores</h2>
 
-            <SetorForm onSubmit={criarSetor} />
+            <button
+                className="btn-primary btn-new-setor"
+                onClick={() => setMostrarForm(!mostrarForm)}
+            >
+                Novo Setor
+            </button>
+
+            {mostrarForm && <SetorForm onSubmit={criarSetor} />}
 
             <div className="info-line">
                 <strong>Soma dos percentuais:</strong>

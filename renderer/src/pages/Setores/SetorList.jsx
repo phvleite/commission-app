@@ -23,69 +23,93 @@ export default function SetorList({ setores, onExcluir, onAtualizar }) {
     }
 
     return (
-        <div className="list-card">
+        <div className="list-card card-anim show">
             <h3>Setores Cadastrados</h3>
 
             <ul className="list">
                 {setores.map(([id, nome, percentual, isMeritocracia, ativo]) => (
                     <li key={id} className="list-item">
+
                         {editandoId === id ? (
+                            /* ============================
+                               MODO EDIÇÃO
+                            ============================ */
                             <div className="edit-row">
-                                <input
-                                    value={editNome}
-                                    onChange={(e) => setEditNome(e.target.value)}
-                                    className="input"
-                                />
-                                <input
-                                    type="number"
-                                    value={editPercentual}
-                                    onChange={(e) => setEditPercentual(e.target.value)}
-                                    className="input"
-                                />
 
-                                <button className="btn-primary" onClick={() => salvarEdicao(id)}>
-                                    Salvar
-                                </button>
-                                <button className="btn-secondary" onClick={() => setEditandoId(null)}>
-                                    Cancelar
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-                                <strong className={ativo === 1 ? "text-normal" : "text-muted"}>
-                                    {nome}
-                                    {isMeritocracia === 1 && (
-                                        <span className="text-gold"> ⭐ Meritocracia</span>
-                                    )}
-                                </strong>
+                                <div className="edit-left">
+                                    <input
+                                        value={editNome}
+                                        onChange={(e) => setEditNome(e.target.value)}
+                                        className="input"
+                                    />
 
-                                <span className="percent">{percentual}%</span>
+                                    <input
+                                        type="number"
+                                        value={editPercentual}
+                                        onChange={(e) => setEditPercentual(e.target.value)}
+                                        className="input"
+                                    />
+                                </div>
 
-                                {ativo === 1 ? (
-                                    <>
-                                        <button
-                                            className="btn-primary"
-                                            onClick={() => iniciarEdicao(id, nome, percentual)}
-                                        >
-                                            Editar
-                                        </button>
-
-                                        {isMeritocracia === 0 && (
-                                            <button
-                                                className="btn-danger"
-                                                onClick={() => onExcluir(id)}
-                                            >
-                                                Inativar
-                                            </button>
-                                        )}
-                                    </>
-                                ) : (
-                                    <button className="btn-primary" onClick={() => ativar(id)}>
-                                        Ativar
+                                <div className="edit-right">
+                                    <button className="btn-primary" onClick={() => salvarEdicao(id)}>
+                                        Salvar
                                     </button>
-                                )}
-                            </>
+
+                                    <button className="btn-secondary" onClick={() => setEditandoId(null)}>
+                                        Cancelar
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        ) : (
+                            /* ============================
+                               MODO NORMAL
+                            ============================ */
+                            <div className="setor-row">
+
+                                <div className="setor-left">
+                                    <strong className={ativo === 1 ? "text-normal" : "text-muted"}>
+                                        {nome}
+                                    </strong>
+
+                                    {isMeritocracia === 1 && (
+                                        <span className="text-gold">⭐ Meritocracia</span>
+                                    )}
+
+                                    <span className="percent">{percentual}%</span>
+                                </div>
+
+                                <div className="setor-right">
+                                    {ativo === 1 ? (
+                                        <>
+                                            <button
+                                                className="btn-primary"
+                                                onClick={() => iniciarEdicao(id, nome, percentual)}
+                                            >
+                                                Editar
+                                            </button>
+
+                                            {isMeritocracia === 0 && (
+                                                <button
+                                                    className="btn-danger"
+                                                    onClick={() => onExcluir(id)}
+                                                >
+                                                    Inativar
+                                                </button>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <button className="btn-primary" onClick={() => ativar(id)}>
+                                            Ativar
+                                        </button>
+                                    )}
+                                </div>
+
+                            </div>
                         )}
+
                     </li>
                 ))}
             </ul>
