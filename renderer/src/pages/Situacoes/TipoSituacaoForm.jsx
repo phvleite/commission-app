@@ -3,7 +3,6 @@ import { useToast } from "../../components/ToastContext";
 
 export default function TipoSituacaoForm({ onSubmit }) {
     const { addToast } = useToast();
-
     const [descricao, setDescricao] = useState("");
 
     function handleSubmit(e) {
@@ -21,16 +20,21 @@ export default function TipoSituacaoForm({ onSubmit }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+        <form className="tipo-form-card" onSubmit={handleSubmit}>
             <h3>Novo Tipo de Situação</h3>
 
-            <input
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-                placeholder="Ex: Férias, Folga, Atestado..."
-            />
+            <div className="form-vertical">
+                <input
+                    className="input"
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                    placeholder="Ex: Férias, Folga, Atestado..."
+                />
 
-            <button style={{ marginLeft: 10 }}>Cadastrar</button>
+                <button className="btn-primary" type="submit">
+                    Cadastrar
+                </button>
+            </div>
         </form>
     );
 }

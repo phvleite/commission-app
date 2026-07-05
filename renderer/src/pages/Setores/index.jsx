@@ -39,7 +39,7 @@ export default function SetoresPage() {
     const somaOk = soma === 100;
 
     return (
-        <div className="page">
+        <div>
             <h2>Setores</h2>
 
             <button

@@ -64,7 +64,7 @@ export default function ColaboradoresPage() {
     }, [filtroStatus, ordenacao, filtroSetor]);
 
     return (
-        <div className="page">
+        <div>
 
             <h2>Colaboradores</h2>
 

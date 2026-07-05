@@ -24,7 +24,13 @@ export default function SituacaoList({
     }
 
     function salvar() {
-        onEditar(editId, editDataInicial, editDataFinal, Number(editColaborador), Number(editTipo));
+        onEditar(
+            editId,
+            editDataInicial,
+            editDataFinal,
+            Number(editColaborador),
+            Number(editTipo)
+        );
         setEditId(null);
     }
 
@@ -44,84 +50,132 @@ export default function SituacaoList({
     }
 
     return (
-        <ul style={{ marginTop: 20 }}>
+        <div className="situ-list-card">
+            <h3>Situações</h3>
+
             {situacoes.map((s) => {
-                const [id, dataIni, dataFim, colabId, colabNome, tipoId, tipoDesc, ativo] = s;
+                const [
+                    id,
+                    dataIni,
+                    dataFim,
+                    colabId,
+                    colabNome,
+                    tipoId,
+                    tipoDesc,
+                    ativo
+                ] = s;
 
+                // ============================
+                // MODO EDIÇÃO
+                // ============================
+                if (editId === id) {
+                    return (
+                        <div
+                            key={id}
+                            className={`situ-card ${tipoDesc.toLowerCase()}`}
+                        >
+
+                            {/* BLOCO 1 — Datas */}
+                            <div className="situ-edit-block">
+                                <div className="situ-edit-group">
+                                    <label>Data inicial:</label>
+                                    <input
+                                        type="date"
+                                        value={editDataInicial}
+                                        onChange={(e) => setEditDataInicial(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="situ-edit-group">
+                                    <label>Data final:</label>
+                                    <input
+                                        type="date"
+                                        value={editDataFinal}
+                                        onChange={(e) => setEditDataFinal(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* BLOCO 2 — Colaborador + Tipo */}
+                            <div className="situ-edit-block">
+                                <div className="situ-edit-group">
+                                    <label>Colaborador:</label>
+                                    <select
+                                        value={editColaborador}
+                                        onChange={(e) => setEditColaborador(e.target.value)}
+                                    >
+                                        {colaboradores.map(([cid, cnome]) => (
+                                            <option key={cid} value={cid}>{cnome}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="situ-edit-group">
+                                    <label>Tipo de situação:</label>
+                                    <select
+                                        value={editTipo}
+                                        onChange={(e) => setEditTipo(e.target.value)}
+                                    >
+                                        {tipos.map(([tid, tdesc]) => (
+                                            <option key={tid} value={tid}>{tdesc}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* BLOCO 3 — Botões */}
+                            <div className="situ-edit-actions">
+                                <button className="btn-primary" onClick={salvar}>Salvar</button>
+                                <button className="btn-secondary" onClick={() => setEditId(null)}>Cancelar</button>
+                            </div>
+
+                        </div>
+                    );
+                }
+
+                // ============================
+                // MODO VISUAL (CARD PREMIUM)
+                // ============================
                 return (
-                    <li key={id} style={{ marginBottom: 15 }}>
-                        {editId === id ? (
-                            <>
-                                <input
-                                    type="date"
-                                    value={formatDateFromDatabase(editDataInicial)}
-                                    onChange={(e) => setEditDataInicial(e.target.value)}
-                                />
+                    <div
+                        key={id}
+                        className={`situ-card ${tipoDesc.toLowerCase()}`}
+                    >
+                        <div className="situ-left">
+                            <span className="situ-colab">{colabNome}</span>
 
-                                <input
-                                    type="date"
-                                    value={formatDateFromDatabase(editDataFinal)}
-                                    onChange={(e) => setEditDataFinal(e.target.value)}
-                                />
+                            <span className="situ-info">
+                                {tipoDesc} — {formatarData(dataIni)} até {formatarData(dataFim)}
+                            </span>
+                        </div>
 
-                                <select
-                                    value={editColaborador}
-                                    onChange={(e) => setEditColaborador(e.target.value)}
+                        <div className="situ-right">
+                            <button
+                                className="btn-primary"
+                                onClick={() => iniciarEdicao(s)}
+                            >
+                                Editar
+                            </button>
+
+                            {ativo ? (
+                                <button
+                                    className="btn-danger"
+                                    onClick={() => onInativar(id)}
                                 >
-                                    {colaboradores.map(([cid, cnome]) => (
-                                        <option key={cid} value={cid}>
-                                            {cnome}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                <select
-                                    value={editTipo}
-                                    onChange={(e) => setEditTipo(e.target.value)}
+                                    Inativar
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn-primary"
+                                    onClick={() => onAtivar(id)}
                                 >
-                                    {tipos.map(([tid, tdesc]) => (
-                                        <option key={tid} value={tid}>
-                                            {tdesc}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                <button onClick={salvar}>Salvar</button>
-                                <button onClick={() => setEditId(null)}>Cancelar</button>
-                            </>
-                        ) : (
-                            <>
-                                <strong>{colabNome}</strong> — {tipoDesc}
-                                <br />
-                                <span>
-                                    {formatarData(dataIni)} até {formatarData(dataFim)}
-                                </span>
-                                {ativo ? (
-                                    <>
-                                        <button
-                                            onClick={() => iniciarEdicao(s)}
-                                            style={{ marginLeft: 10 }}
-                                        >
-                                            Editar
-                                        </button>
-
-                                        <button
-                                            onClick={() => onInativar(id)}
-                                            style={{ marginLeft: 10 }}
-                                        >
-                                            Inativar
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button onClick={() => onAtivar(id)} style={{ marginLeft: 10 }}>
-                                        Ativar
-                                    </button>
-                                )}
-                            </>
-                        )}
-                    </li>
+                                    Ativar
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 );
             })}
-        </ul>
+        </div>
     );
 }

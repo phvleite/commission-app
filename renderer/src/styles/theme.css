@@ -6,6 +6,7 @@
     --color-light-blue: #4fa3d1;
     --color-gold: #d4af37;
     --color-gray: #f5f7fa;
+    --color-danger: #b00000;
 
     /* Fonte */
     --font-main: "Segoe UI", Inter, Roboto, sans-serif;
@@ -716,4 +717,466 @@ select.input:focus {
 .situ-row .actions {
     display: flex;
     gap: 10px;
+}
+
+/* ============================
+   TIPOS DE SITUAÇÃO — CARD EM LINHA
+   ============================ */
+
+.tipos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tipo-card {
+    background: white;
+    padding: 14px 18px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tipo-left {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark-blue);
+}
+
+.tipo-right {
+    display: flex;
+    gap: 10px;
+}
+
+.form-inline {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.form-inline input {
+    flex: 1;
+}
+
+/* Alinhar input + botão cadastrar
+.tipos-form .form-inline {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.tipos-form .form-inline input {
+    flex: 1;
+} */
+
+/* ============================
+   TIPOS DE SITUAÇÃO — CORREÇÃO DE QUADROS
+   ============================ */
+
+/* Remove borda e estilo do quadro externo */
+.tipos-form,
+.tipos-list {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* Card único para o formulário */
+.tipo-form-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-bottom: 20px;
+}
+
+/* Input em cima, botão embaixo */
+.tipo-form-card .form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Card único para a listagem */
+.tipo-list-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+}
+
+/* Cards individuais */
+.tipo-card {
+    background: white;
+    padding: 14px 18px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.tipo-left {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark-blue);
+}
+
+.tipo-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* Espaçamento perfeito no card de Novo Tipo de Situação */
+.tipo-form-card h3 {
+    margin-bottom: 15px;
+}
+
+.tipo-form-card .form-vertical input {
+    padding-right: 0px; /* afasta do topo */
+}
+
+/* ============================
+   SITUAÇÃO — FORMULÁRIO PREMIUM
+   ============================ */
+
+.situ-form-card {
+    background: white;
+    padding: 22px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-bottom: 25px;
+}
+
+.situ-form-card h3 {
+    margin-bottom: 18px;
+}
+
+.situ-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.situ-form-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-dark-blue);
+    font-size: 14px;
+}
+
+.situ-form-group .input,
+.situ-form-group select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.situ-form-button {
+    margin-top: 10px;
+}
+
+/* ============================
+   AJUSTE FINO — FORMULÁRIO DE SITUAÇÃO
+   ============================ */
+
+/* Card único */
+.situ-form-card {
+    background: white;
+    padding: 24px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-bottom: 25px;
+}
+
+/* Espaçamento do título */
+.situ-form-card h3 {
+    margin-bottom: 18px;
+}
+
+/* Cada campo */
+.situ-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+/* Label premium */
+.situ-form-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-dark-blue);
+    font-size: 14px;
+}
+
+/* Inputs e selects premium */
+.situ-form-group .input,
+.situ-form-group select,
+.situ-form-group input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box; /* impede encostar na borda */
+}
+
+/* Botão */
+.situ-form-button {
+    margin-top: 10px;
+}
+
+/* ============================
+   FILTROS PREMIUM — EM LINHA
+   ============================ */
+
+.situ-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.situ-filter-group {
+    display: flex;
+    flex-direction: column;
+    width: 180px; /* tamanho ideal para caber em linha */
+}
+
+.situ-filter-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-dark-blue);
+    font-size: 14px;
+}
+
+.situ-filter-group select,
+.situ-filter-group input[type="date"] {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ============================
+   SITUAÇÕES — LISTAGEM PREMIUM
+   ============================ */
+
+.situ-list-card {
+    background: white;
+    padding: 22px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-top: 25px;
+}
+
+.situ-card {
+    background: white;
+    padding: 14px 18px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-light-blue);
+    margin-bottom: 12px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.situ-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.situ-left .situ-colab {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark-blue);
+}
+
+.situ-left .situ-info {
+    font-size: 14px;
+    color: #555;
+}
+
+.situ-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* ============================
+   SITUAÇÕES — LISTAGEM PREMIUM COM CORES
+   ============================ */
+
+.situ-list-card {
+    background: white;
+    padding: 22px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-top: 25px;
+}
+
+/* Card base */
+.situ-card {
+    background: white;
+    padding: 16px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 14px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Cores por tipo */
+.situ-card.folga,
+.situ-card.férias {
+    border-left: 4px solid var(--color-gold);
+}
+
+.situ-card.falta,
+.situ-card.atestado,
+.situ-card.suspensão,
+.situ-card.licença {
+    border-left: 4px solid var(--color-danger);
+}
+
+/* Conteúdo */
+.situ-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.situ-colab {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark-blue);
+}
+
+.situ-info {
+    font-size: 14px;
+    color: #555;
+}
+
+.situ-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* Modo edição */
+.situ-edit-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-bottom: 14px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.situ-edit-row {
+    display: flex;
+    gap: 12px;
+}
+
+.situ-edit-row input,
+.situ-edit-row select {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* ============================
+   SITUAÇÕES — MODO EDIÇÃO PREMIUM
+   ============================ */
+
+.situ-edit-card {
+    background: white;
+    padding: 22px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    border-left: 4px solid var(--color-gold);
+    margin-bottom: 14px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.situ-edit-row {
+    display: flex;
+    gap: 12px;
+}
+
+.situ-edit-row input,
+.situ-edit-row select {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.situ-edit-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Cada grupo do modo edição */
+.situ-edit-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Força cada grupo a ter a mesma largura dentro da linha */
+.situ-edit-row .situ-edit-group {
+    flex: 1;
+    min-width: 180px; /* impede encolher */
+}
+
+/* Labels acima */
+.situ-edit-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-dark-blue);
+    font-size: 14px;
+}
+
+/* Inputs e selects alinhados */
+.situ-edit-group input,
+.situ-edit-group select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
 }
