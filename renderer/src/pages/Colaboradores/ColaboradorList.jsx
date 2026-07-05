@@ -37,25 +37,25 @@ export default function ColaboradorList({
     }
 
     return (
-        <div>
+        <div className="list-card">
             <h3>Lista de Colaboradores</h3>
 
-            <ul>
+            <ul className="list">
                 {colaboradores.map((col) => (
-                    <li key={col.id} style={{ marginBottom: 15 }}>
+                    <li key={col.id} className="list-item">
+
                         {editId === col.id ? (
-                            <div style={{ padding: 10, border: "1px solid #ccc" }}>
-                                <div>
-                                    <label>Nome:</label>
+                            <div className="edit-row">
+
+                                <div className="edit-left">
                                     <input
+                                        className="input"
                                         value={editNome}
                                         onChange={(e) => setEditNome(e.target.value)}
                                     />
-                                </div>
 
-                                <div style={{ marginTop: 10 }}>
-                                    <label>Setor:</label>
                                     <select
+                                        className="input"
                                         value={editSetor}
                                         onChange={(e) => setEditSetor(e.target.value)}
                                     >
@@ -65,57 +65,71 @@ export default function ColaboradorList({
                                             </option>
                                         ))}
                                     </select>
-                                </div>
 
-                                <div style={{ marginTop: 10 }}>
-                                    <label>Data de admissão:</label>
                                     <input
                                         type="date"
+                                        className="input"
                                         value={formatDateFromDatabase(editAdmissao)}
                                         onChange={(e) => setEditAdmissao(e.target.value)}
                                     />
-                                </div>
 
-                                <div style={{ marginTop: 10 }}>
-                                    <label>Data de demissão (opcional):</label>
                                     <input
                                         type="date"
+                                        className="input"
                                         value={formatDateFromDatabase(editDemissao)}
                                         onChange={(e) => setEditDemissao(e.target.value)}
                                     />
                                 </div>
 
-                                <button style={{ marginTop: 10 }} onClick={salvar}>
-                                    Salvar
-                                </button>
-                                <button
-                                    style={{ marginLeft: 10 }}
-                                    onClick={() => setEditId(null)}
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-                                <strong>{col.nome}</strong>
-                                {" — "}
-                                <span>{col.setor_nome}</span>
-                                {" — "}
-                                <span>
-                                    {status(col)}
-                                    {col.data_demissao
-                                        ? ` (demitido em ${formatDateFromDatabase(col.data_demissao)})`
-                                        : ""}
-                                </span>
+                                <div className="edit-right">
+                                    <button className="btn-primary" onClick={salvar}>
+                                        Salvar
+                                    </button>
 
-                                <button
-                                    style={{ marginLeft: 10 }}
-                                    onClick={() => iniciarEdicao(col)}
-                                >
-                                    Editar
-                                </button>
-                            </>
+                                    <button
+                                        className="btn-secondary"
+                                        onClick={() => setEditId(null)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        ) : (
+                            <div className="colab-row">
+
+                                <div className="colab-left">
+                                    <div className="colab-name">{col.nome}</div>
+
+                                    <div className="colab-sector">{col.setor_nome}</div>
+
+                                    <div
+                                        className={
+                                            col.data_demissao
+                                                ? "colab-status text-danger"
+                                                : "colab-status text-success"
+                                        }
+                                    >
+                                        {status(col)}
+                                        {col.data_demissao
+                                            ? ` (${formatDateFromDatabase(col.data_demissao)})`
+                                            : ""}
+                                    </div>
+                                </div>
+
+                                <div className="colab-right">
+                                    <button
+                                        className="btn-primary"
+                                        onClick={() => iniciarEdicao(col)}
+                                    >
+                                        Editar
+                                    </button>
+                                </div>
+
+                            </div>
                         )}
+
                     </li>
                 ))}
             </ul>

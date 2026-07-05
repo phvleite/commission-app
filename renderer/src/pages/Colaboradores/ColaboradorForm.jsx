@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { useToast } from "../../components/ToastContext";
 
-export default function ColaboradorForm({ setores, onSubmit }) {
+export default function ColaboradorForm({ setores, onSubmit, onCancel }) {
     const { addToast } = useToast();
 
     const [nome, setNome] = useState("");
     const [setorId, setSetorId] = useState("");
     const [dataAdmissao, setDataAdmissao] = useState("");
     const [dataDemissao, setDataDemissao] = useState("");
+
+    function limparCampos() {
+        setNome("");
+        setSetorId("");
+        setDataAdmissao("");
+        setDataDemissao("");
+    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -39,58 +46,82 @@ export default function ColaboradorForm({ setores, onSubmit }) {
             dataDemissao: dataDemissao || null
         });
 
-        setNome("");
-        setSetorId("");
-        setDataAdmissao("");
-        setDataDemissao("");
-
+        limparCampos();
         addToast("Colaborador cadastrado com sucesso!", "success");
     }
 
+    function cancelar() {
+        limparCampos();
+        if (onCancel) onCancel();
+    }
+
     return (
-        <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+        <form onSubmit={handleSubmit} className="form-card-inner">
+
             <h3>Novo Colaborador</h3>
 
-            <div>
+            {/* Nome */}
+            <div className="form-group">
                 <label>Nome:</label>
                 <input
+                    className="input"
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Ex: João Silva"
                 />
             </div>
 
-            <div style={{ marginTop: 10 }}>
+            {/* Setor */}
+            <div className="form-group">
                 <label>Setor:</label>
-                <select value={setorId} onChange={(e) => setSetorId(e.target.value)}>
-                    <option value="">Selecione...</option>
-                    {setores.map(([id, nome]) => (
-                        <option key={id} value={id}>
-                            {nome}
-                        </option>
-                    ))}
-                </select>
+                <div className="select-wrapper">
+                    <select
+                        value={setorId}
+                        onChange={(e) => setSetorId(e.target.value)}
+                    >
+                        <option value="">Selecione...</option>
+                        {setores.map(([id, nome]) => (
+                            <option key={id} value={id}>
+                                {nome}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
-            <div style={{ marginTop: 10 }}>
+            {/* Admissão */}
+            <div className="form-group">
                 <label>Data de admissão:</label>
                 <input
                     type="date"
+                    className="input"
                     value={dataAdmissao}
                     onChange={(e) => setDataAdmissao(e.target.value)}
                 />
             </div>
 
-            <div style={{ marginTop: 10 }}>
+            {/* Demissão */}
+            <div className="form-group">
                 <label>Data de demissão (opcional):</label>
                 <input
                     type="date"
+                    className="input"
                     value={dataDemissao}
                     onChange={(e) => setDataDemissao(e.target.value)}
                 />
             </div>
 
-            <button style={{ marginTop: 10 }}>Cadastrar</button>
+            {/* Botões */}
+            <div className="form-buttons">
+                <button type="submit" className="btn-primary">
+                    Cadastrar
+                </button>
+
+                <button type="button" className="btn-secondary" onClick={cancelar}>
+                    Cancelar
+                </button>
+            </div>
+
         </form>
     );
 }
