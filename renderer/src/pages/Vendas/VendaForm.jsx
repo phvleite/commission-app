@@ -77,37 +77,32 @@ export default function VendaForm({ onSave, onCancel, vendaId }) {
     }
 
     return (
-        <div style={{ marginBottom: 20 }}>
+        <div className="venda-form-card">
+
             <h3>{editMode ? "Alterar Venda" : "Lançar Venda"}</h3>
 
-            <label>Data:</label>
-            <br />
-            <input
-                type="date"
-                value={data}
-                onChange={(e) => setData(e.target.value)}
-            />
+            <div className="venda-form-grid">
+                <div className="venda-form-group">
+                    <label>Data:</label>
+                    <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
+                </div>
 
-            <br /><br />
+                <div className="venda-form-group">
+                    <label>Valor:</label>
+                    <input type="text" value={valor} onChange={handleValorChange} />
+                </div>
+            </div>
 
-            <label>Valor:</label>
-            <br />
-            <input
-                type="text"
-                value={valor}
-                placeholder="Digite o valor"
-                onChange={handleValorChange}
-            />
+            <div className="venda-form-actions">
+                <button className="btn-primary" onClick={salvar}>
+                    {editMode ? "Salvar Alterações" : "Salvar"}
+                </button>
 
-            <br /><br />
+                <button className="btn-secondary" onClick={cancelar}>
+                    Cancelar
+                </button>
+            </div>
 
-            <button onClick={salvar}>
-                {editMode ? "Salvar Alterações" : "Salvar"}
-            </button>
-
-            <button onClick={cancelar}>
-                Cancelar
-            </button>
         </div>
     );
 }

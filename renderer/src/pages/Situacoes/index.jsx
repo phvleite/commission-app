@@ -23,6 +23,7 @@ export default function SituacoesPage() {
         setFiltroDataFinal,
         setFiltroMes,
         setFiltroAno,
+        limparFiltros,
 
         criarTipo,
         editarTipo,
@@ -39,6 +40,13 @@ export default function SituacoesPage() {
         mostrarCadastro,
         setMostrarCadastro
     } = useSituacoes();
+  
+    const anoAtual = new Date().getFullYear();
+    const anos = [];
+
+    for (let ano = 2020; ano <= anoAtual + 5; ano++) {
+        anos.push(ano);
+    }
 
     return (
         <div>
@@ -166,10 +174,16 @@ export default function SituacoesPage() {
                     <label>Ano:</label>
                     <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)}>
                         <option value="">Todos</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
+                        {anos.map((ano) => (
+                            <option key={ano} value={ano}>{ano}</option>
+                        ))}
                     </select>
+                </div>
+
+                <div className="situ-filter-group">
+                    <button className="btn-secondary" onClick={limparFiltros}>
+                        Limpar Filtros
+                    </button>
                 </div>
 
             </div>

@@ -63,6 +63,12 @@ export default function ColaboradoresPage() {
         return () => window.removeEventListener("colaboradores-atualizados", atualizar);
     }, [filtroStatus, ordenacao, filtroSetor]);
 
+    function limparFiltros() {
+        setFiltroStatus("ativo");
+        setOrdenacao("nome");
+        setFiltroSetor("todos");
+    }
+
     return (
         <div>
 
@@ -118,6 +124,16 @@ export default function ColaboradoresPage() {
                             <option value="setor">Setor + Nome</option>
                         </select>
                     </div>
+                </div>
+
+                <div>
+                    <button
+                        className="btn-secondary"
+                        onClick={limparFiltros}
+                        style={{ marginTop: 20 }}
+                    >
+                        Limpar Filtros
+                    </button>
                 </div>
 
             </div>

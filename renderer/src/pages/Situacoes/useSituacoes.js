@@ -66,6 +66,15 @@ export default function useSituacoes() {
         setSituacoes(data);
     }
 
+    function limparFiltros() {
+        setFiltroColaborador("todos");
+        setFiltroTipo("todos");
+        setFiltroDataInicial("");
+        setFiltroDataFinal("");
+        setFiltroMes("");
+        setFiltroAno("");
+    }
+
     // ---------------------------------------------------------
     // CRUD TIPO DE SITUAÇÃO
     // ---------------------------------------------------------
@@ -166,6 +175,7 @@ export default function useSituacoes() {
         setFiltroDataFinal,
         setFiltroMes,
         setFiltroAno,
+        limparFiltros,
 
         criarTipo,
         editarTipo,
