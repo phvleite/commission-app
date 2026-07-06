@@ -1411,3 +1411,9 @@ select.input:focus {
 .venda-modal-table tbody tr:last-child td:last-child {
     border-bottom-right-radius: 8px;
 }
+
+.commission-colab {
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+}

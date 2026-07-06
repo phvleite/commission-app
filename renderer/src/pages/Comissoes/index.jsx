@@ -149,7 +149,7 @@ export default function ComissoesPage() {
                 </div>
 
                 {/* COLABORADOR */}
-                <div className="situ-filter-group">
+                <div className="situ-filter-group commission-colab">
                     <label>Colaborador</label>
                     <select
                         value={colaboradorId}
