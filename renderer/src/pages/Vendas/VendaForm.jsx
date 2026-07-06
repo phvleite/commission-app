@@ -56,6 +56,7 @@ export default function VendaForm({ onSave, onCancel, vendaId }) {
 
             await window.api.vendas.salvar(data, valorConvertido);
             addToast("Venda registrada e comissões geradas.", "success");
+            setValor("");
         } else {
             const resultado = await window.api.vendas.alterar(vendaId, data, valorConvertido);
 
