@@ -53,7 +53,8 @@ async function init() {
     SQL = await initSqlJs({
         locateFile: (file) => {
             if (isDev) {
-                return path.join(__dirname, file); // DEV → electron/sql-wasm.wasm
+                // DEV → procura no node_modules/sql.js/dist/
+                return path.join(__dirname, "../node_modules/sql.js/dist", file);
             }
             return path.join(process.resourcesPath, file); // PRODUÇÃO → resources/sql-wasm.wasm
         }

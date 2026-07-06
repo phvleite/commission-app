@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
-import ComissaoList from "./ComissaoList.jsx";
 import { useToast } from "../../components/ToastContext.jsx";
+import { useComissoes } from "./useComissoes.js";
+
+import RelatorioPeriodoTodos from "./RelatorioPeriodoTodos.jsx";
+import RelatorioPeriodoColaborador from "./RelatorioPeriodoColaborador.jsx";
+import RelatorioMensalTodos from "./RelatorioMensalTodos.jsx";
+import RelatorioMensalColaborador from "./RelatorioMensalColaborador.jsx";
 
 export default function ComissoesPage() {
     const [dataInicial, setDataInicial] = useState("");
@@ -10,10 +15,16 @@ export default function ComissoesPage() {
     const [colaboradorId, setColaboradorId] = useState("");
 
     const [colaboradores, setColaboradores] = useState([]);
-
     const [resultado, setResultado] = useState(null);
 
     const { addToast } = useToast();
+
+    const {
+        listarPorPeriodo,
+        listarPorPeriodoColaborador,
+        listarMensalTodos,
+        listarMensalColaborador
+    } = useComissoes();
 
     // Carregar colaboradores
     useEffect(() => {
@@ -51,34 +62,85 @@ export default function ComissoesPage() {
     }
 
     async function gerarRelatorio() {
-        // 1) RELATÓRIO POR MÊS/ANO
+        // RELATÓRIO MENSAL
         if (mes && ano) {
             if (colaboradorId) {
-                const dados = await window.api.comissoes.listarMensalColaborador(
+                const dados = await listarMensalColaborador(mes, ano, colaboradorId);
+
+                if (!dados || !dados.dados || dados.dados.length === 0) {
+                    addToast("Nenhum registro encontrado para o mês/ano informado.", "error");
+                    return;
+                }
+
+                setResultado({
+                    tipo: "mensal-colaborador",
+                    dados,
                     mes,
                     ano,
                     colaboradorId
-                );
-                setResultado({ tipo: "mensal-colaborador", dados, mes, ano });
+                });
             } else {
-                const dados = await window.api.comissoes.listarMensalTodos(mes, ano);
-                setResultado({ tipo: "mensal-todos", dados, mes, ano });
+                const dados = await listarMensalTodos(mes, ano);
+
+                if (!dados || !dados.dados || dados.dados.length === 0) {
+                    addToast("Nenhum registro encontrado para o mês/ano informado.", "error");
+                    return;
+                }
+
+                setResultado({
+                    tipo: "mensal-todos",
+                    dados,
+                    mes,
+                    ano
+                });
             }
             return;
         }
 
-        // 2) RELATÓRIO POR PERÍODO
+        // RELATÓRIO POR PERÍODO
         if (dataInicial && dataFinal) {
+            if (dataFinal < dataInicial) {
+                addToast("A data final não pode ser menor que a data inicial.", "error");
+                return;
+            }
+
             if (colaboradorId) {
-                const dados = await window.api.comissoes.listarPorPeriodoColaborador(
+                const dados = await listarPorPeriodoColaborador(
                     dataInicial,
                     dataFinal,
                     colaboradorId
                 );
-                setResultado({ tipo: "periodo-colaborador", dados, dataInicial, dataFinal });
+
+                if (!dados || !dados.dados || dados.dados.length === 0) {
+                    addToast("Nenhum registro encontrado para o período informado.", "error");
+                    return;
+                }
+                setResultado({
+                    tipo: "periodo-colaborador",
+                    dados,
+                    dataInicial,
+                    dataFinal,
+                    colaboradorId
+                });
             } else {
-                const dados = await window.api.comissoes.listarPorPeriodo(dataInicial, dataFinal);
-                setResultado({ tipo: "periodo-todos", dados, dataInicial, dataFinal });
+                const dados = await listarPorPeriodo(dataInicial, dataFinal);
+                const vendasPeriodo = await window.api.vendas.listarPorPeriodo(
+                    dataInicial,
+                    dataFinal
+                );
+
+                if (!dados || !dados.dados || dados.dados.length === 0) {
+                    addToast("Nenhum registro encontrado para o período informado.", "error");
+                    return;
+                }
+
+                setResultado({
+                    tipo: "periodo-todos",
+                    dados,
+                    dataInicial,
+                    dataFinal,
+                    vendasPeriodo
+                });
             }
             return;
         }
@@ -87,96 +149,103 @@ export default function ComissoesPage() {
     }
 
     return (
-        <div className="page">
-            <h2>Comissões</h2>
-            <hr />
+        <div>
+            <div className="venda-form-card">
+                <h2>Comissões</h2>
+                <hr />
 
-            {/* FILTROS PREMIUM */}
-            <div className="situ-filters">
-                {/* PERÍODO */}
-                <div className="situ-filter-group">
-                    <label>Data Inicial</label>
-                    <input
-                        type="date"
-                        value={dataInicial}
-                        onChange={(e) => setDataInicial(e.target.value)}
-                    />
-                </div>
+                {/* FILTROS PREMIUM */}
+                <div className="situ-filters">
+                    <div className="situ-filter-group">
+                        <label>Data Inicial</label>
+                        <input
+                            type="date"
+                            value={dataInicial}
+                            onChange={(e) => setDataInicial(e.target.value)}
+                        />
+                    </div>
 
-                <div className="situ-filter-group">
-                    <label>Data Final</label>
-                    <input
-                        type="date"
-                        value={dataFinal}
-                        onChange={(e) => setDataFinal(e.target.value)}
-                    />
-                </div>
+                    <div className="situ-filter-group">
+                        <label>Data Final</label>
+                        <input
+                            type="date"
+                            value={dataFinal}
+                            onChange={(e) => setDataFinal(e.target.value)}
+                        />
+                    </div>
 
-                {/* MÊS */}
-                <div className="situ-filter-group">
-                    <label>Mês</label>
-                    <select value={mes} onChange={(e) => setMes(e.target.value)}>
-                        <option value="">Todos</option>
-                        <option value="01">Janeiro</option>
-                        <option value="02">Fevereiro</option>
-                        <option value="03">Março</option>
-                        <option value="04">Abril</option>
-                        <option value="05">Maio</option>
-                        <option value="06">Junho</option>
-                        <option value="07">Julho</option>
-                        <option value="08">Agosto</option>
-                        <option value="09">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                    </select>
-                </div>
+                    <div className="situ-filter-group">
+                        <label>Mês</label>
+                        <select value={mes} onChange={(e) => setMes(e.target.value)}>
+                            <option value="">Todos</option>
+                            <option value="01">Janeiro</option>
+                            <option value="02">Fevereiro</option>
+                            <option value="03">Março</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Maio</option>
+                            <option value="06">Junho</option>
+                            <option value="07">Julho</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
 
-                {/* ANO */}
-                <div className="situ-filter-group">
-                    <label>Ano</label>
-                    <select value={ano} onChange={(e) => setAno(e.target.value)}>
-                        <option value="">Todos</option>
-                        {Array.from({ length: 10 }).map((_, i) => {
-                            const y = 2020 + i;
-                            return (
-                                <option key={y} value={y}>
-                                    {y}
+                    <div className="situ-filter-group">
+                        <label>Ano</label>
+                        <select value={ano} onChange={(e) => setAno(e.target.value)}>
+                            <option value="">Todos</option>
+                            {Array.from({ length: 10 }).map((_, i) => {
+                                const y = 2020 + i;
+                                return (
+                                    <option key={y} value={y}>
+                                        {y}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+
+                    <div className="situ-filter-group commission-colab">
+                        <label>Colaborador</label>
+                        <select
+                            value={colaboradorId}
+                            onChange={(e) => setColaboradorId(e.target.value)}
+                        >
+                            <option value="">Todos</option>
+                            {colaboradores.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.nome}
                                 </option>
-                            );
-                        })}
-                    </select>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* COLABORADOR */}
-                <div className="situ-filter-group commission-colab">
-                    <label>Colaborador</label>
-                    <select
-                        value={colaboradorId}
-                        onChange={(e) => setColaboradorId(e.target.value)}
-                    >
-                        <option value="">Todos</option>
-                        {colaboradores.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.nome}
-                            </option>
-                        ))}
-                    </select>
+                <div style={{ marginTop: 10 }}>
+                    <button className="btn-primary" onClick={gerarRelatorio}>
+                        Gerar Relatório
+                    </button>
+                    <button className="btn-secondary" onClick={limparFiltros}>
+                        Limpar Filtros
+                    </button>
                 </div>
             </div>
+        
+            {/* RENDERIZAÇÃO DO RELATÓRIO */}
+            {resultado?.tipo === "periodo-todos" && <RelatorioPeriodoTodos resultado={resultado} />}
 
-            {/* BOTÕES */}
-            <div style={{ marginTop: 10 }}>
-                <button className="btn-primary" onClick={gerarRelatorio}>
-                    Gerar Relatório
-                </button>
-                <button className="btn-secondary" onClick={limparFiltros}>
-                    Limpar Filtros
-                </button>
-            </div>
+            {resultado?.tipo === "periodo-colaborador" && (
+                <RelatorioPeriodoColaborador resultado={resultado} />
+            )}
 
-            {/* RESULTADO */}
-            {resultado && <ComissaoList resultado={resultado} />}
+            {resultado?.tipo === "mensal-todos" && <RelatorioMensalTodos resultado={resultado} />}
+
+            {resultado?.tipo === "mensal-colaborador" && (
+                <RelatorioMensalColaborador resultado={resultado} />
+            )}
         </div>
     );
 }

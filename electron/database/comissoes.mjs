@@ -217,6 +217,213 @@ export function comissoesAPI(db, saveDatabase) {
             stmt.free();
 
             return rows;
-        }
-    };
+        },
+
+        async listarPorPeriodo(dataInicial, dataFinal) {
+            const stmt = db.prepare(`
+                SELECT c.*, col.nome AS colaborador, s.nome AS setor
+                FROM comissoes c
+                JOIN colaboradores col ON col.id = c.colaborador_id
+                JOIN setores s ON s.id = c.setor_id
+                WHERE c.data BETWEEN ? AND ?
+                ORDER BY col.nome COLLATE NOCASE ASC, c.data ASC
+            `);
+
+            stmt.bind([dataInicial, dataFinal]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarPorPeriodoColaborador(dataInicial, dataFinal, colaboradorId) {
+            const stmt = db.prepare(`
+                SELECT c.*, col.nome AS colaborador, s.nome AS setor
+                FROM comissoes c
+                JOIN colaboradores col ON col.id = c.colaborador_id
+                JOIN setores s ON s.id = c.setor_id
+                WHERE c.data BETWEEN ? AND ?
+                AND c.colaborador_id = ?
+                ORDER BY c.data ASC
+            `);
+
+            stmt.bind([dataInicial, dataFinal, colaboradorId]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarResumoSetoresPorPeriodo(dataInicial, dataFinal) {
+            const stmt = db.prepare(`
+                SELECT 
+                    s.nome AS setor,
+                    SUM(vcs.valor_total_setor) AS valor_total_setor,
+                    SUM(vcs.qtd_total_colaboradores) AS qtd_total_colaboradores,
+                    SUM(vcs.qtd_aptos_colaboradores) AS qtd_aptos_colaboradores
+                FROM venda_comissoes_setores vcs
+                JOIN setores s ON s.id = vcs.setor_id
+                WHERE vcs.data BETWEEN ? AND ?
+                GROUP BY setor
+                ORDER BY setor ASC
+            `);
+
+            stmt.bind([dataInicial, dataFinal]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarResumoSetoresColaboradorPeriodo(dataInicial, dataFinal, colaboradorId) {
+            const stmt = db.prepare(`
+                SELECT 
+                    s.nome AS setor,
+                    SUM(c.valor_setor) AS valor_total_setor,
+                    SUM(c.valor_colaborador) AS valor_total_colaborador
+                FROM comissoes c
+                JOIN setores s ON s.id = c.setor_id
+                WHERE c.data BETWEEN ? AND ?
+                AND c.colaborador_id = ?
+                GROUP BY setor
+            `);
+
+            stmt.bind([dataInicial, dataFinal, colaboradorId]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarResumoSetoresColaboradorPeriodo(dataInicial, dataFinal, colaboradorId) {
+            const stmt = db.prepare(`
+                SELECT 
+                    s.nome AS setor,
+                    SUM(c.valor_setor) AS valor_total_setor,
+                    SUM(c.valor_colaborador) AS valor_total_colaborador
+                FROM comissoes c
+                JOIN setores s ON s.id = c.setor_id
+                WHERE c.data BETWEEN ? AND ?
+                AND c.colaborador_id = ?
+                GROUP BY setor
+            `);
+
+            stmt.bind([dataInicial, dataFinal, colaboradorId]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarMensalTodos(mes, ano) {
+            const mesStr = mes.toString().padStart(2, "0");
+            const anoStr = ano.toString();
+
+            const stmt = db.prepare(`
+                SELECT c.*, col.nome AS colaborador, s.nome AS setor
+                FROM comissoes c
+                JOIN colaboradores col ON col.id = c.colaborador_id
+                JOIN setores s ON s.id = c.setor_id
+                WHERE strftime('%m', c.data) = ?
+                AND strftime('%Y', c.data) = ?
+                ORDER BY col.nome COLLATE NOCASE ASC, c.data ASC
+            `);
+
+            stmt.bind([mesStr, anoStr]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarMensalColaborador(mes, ano, colaboradorId) {
+            const mesStr = mes.toString().padStart(2, "0");
+            const anoStr = ano.toString();
+
+            const stmt = db.prepare(`
+                SELECT c.*, col.nome AS colaborador, s.nome AS setor
+                FROM comissoes c
+                JOIN colaboradores col ON col.id = c.colaborador_id
+                JOIN setores s ON s.id = c.setor_id
+                WHERE strftime('%m', c.data) = ?
+                AND strftime('%Y', c.data) = ?
+                AND c.colaborador_id = ?
+                ORDER BY c.data ASC
+            `);
+
+            stmt.bind([mesStr, anoStr, colaboradorId]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarResumoSetoresMensal(mes, ano) {
+            const mesStr = mes.toString().padStart(2, "0");
+            const anoStr = ano.toString();
+
+            const stmt = db.prepare(`
+                SELECT 
+                    s.nome AS setor,
+                    SUM(vcs.valor_total_setor) AS valor_total_setor,
+                    SUM(vcs.qtd_total_colaboradores) AS qtd_total_colaboradores,
+                    SUM(vcs.qtd_aptos_colaboradores) AS qtd_aptos_colaboradores
+                FROM venda_comissoes_setores vcs
+                JOIN setores s ON s.id = vcs.setor_id
+                WHERE strftime('%m', vcs.data) = ?
+                AND strftime('%Y', vcs.data) = ?
+                GROUP BY setor
+                ORDER BY setor ASC
+            `);
+
+            stmt.bind([mesStr, anoStr]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
+        async listarResumoSetoresColaboradorMensal(mes, ano, colaboradorId) {
+            const mesStr = mes.toString().padStart(2, "0");
+            const anoStr = ano.toString();
+
+            const stmt = db.prepare(`
+                SELECT 
+                    s.nome AS setor,
+                    SUM(c.valor_setor) AS valor_total_setor,
+                    SUM(c.valor_colaborador) AS valor_total_colaborador
+                FROM comissoes c
+                JOIN setores s ON s.id = c.setor_id
+                WHERE strftime('%m', c.data) = ?
+                AND strftime('%Y', c.data) = ?
+                AND c.colaborador_id = ?
+                GROUP BY setor
+            `);
+
+            stmt.bind([mesStr, anoStr, colaboradorId]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+       
+    };  
 }

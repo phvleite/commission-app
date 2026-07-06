@@ -119,6 +119,23 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
             stmt.free();
 
             return row;
-        }
+        },
+
+        listarPorPeriodo(dataInicial, dataFinal) {
+            const stmt = db.prepare(`
+                SELECT * FROM vendas
+                WHERE data >= ? AND data <= ?
+                ORDER BY data ASC
+            `);
+
+            stmt.bind([dataInicial, dataFinal]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
     };
 }
