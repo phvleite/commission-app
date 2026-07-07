@@ -132,13 +132,10 @@ export default function RelatorioPeriodoTodos({ resultado }) {
 
 function gerarPDF(resultado) {
     (async () => {
-        console.log("Gerando PDF — chamada iniciada", window.api?.pdf);
         try {
             const filePath = await window.api.pdf.gerarRelatorioPeriodoTodos(resultado);
-            console.log("PDF gerado em:", filePath);
             alert("PDF gerado em: " + filePath);
         } catch (err) {
-            console.error("Erro ao gerar PDF:", err);
             alert("Erro ao gerar PDF: " + (err && err.message));
         }
     })();

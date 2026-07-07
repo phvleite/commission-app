@@ -14,18 +14,20 @@ import { pdfAPI } from "./pdf.mjs";
 // ------------------------------------------------------------
 // CONFIGURAÇÕES BÁSICAS
 // ------------------------------------------------------------
-process.env.NODE_ENV = "development"; // força DEV no modo dev
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const isDev =
+    process.env.NODE_ENV === "development" || process.defaultApp || !__dirname.includes("app.asar");
+
+const resourcesBase = process.resourcesPath.endsWith("app.asar")
+    ? path.dirname(process.resourcesPath)
+    : process.resourcesPath;
 
 // Recebe o caminho do AppData enviado pelo main.js
 const userDataPath = process.argv
     .find((arg) => arg.startsWith("--userDataPath="))
     ?.replace("--userDataPath=", "");
-
-// Caminho do banco (DEV vs PRODUÇÃO)
-const isDev = process.env.NODE_ENV === "development";
 
 const dbPath = isDev
     ? path.join(__dirname, "database.sqlite") // DEV → electron/database.sqlite
@@ -46,8 +48,8 @@ async function init() {
             const mod = await import("sql.js");
             initSqlJs = mod.default || mod.initSqlJs || mod;
         } else {
-            const sqlJsPath = path.join(process.resourcesPath, "sql.js");
-            const mod = await import(pathToFileURL(sqlJsPath).href);
+            const sqlWasmJsPath = path.join(resourcesBase, "sql-wasm.js");
+            const mod = await import(pathToFileURL(sqlWasmJsPath).href);
             initSqlJs = mod.default || mod.initSqlJs || mod;
         }
     }
@@ -59,8 +61,8 @@ async function init() {
                 return pathToFileURL(path.join(__dirname, "sql-wasm.wasm")).href;
             }
 
-            // PRODUÇÃO → carrega via URL absoluta
-            return pathToFileURL(path.join(process.resourcesPath, "sql-wasm.wasm")).href;
+            // PRODUÇÃO → carrega via URL absoluta do resources externo
+            return pathToFileURL(path.join(resourcesBase, "sql-wasm.wasm")).href;
         }
     });
 
