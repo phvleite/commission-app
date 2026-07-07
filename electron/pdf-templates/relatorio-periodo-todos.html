@@ -51,6 +51,7 @@
     <body>
         <div id="conteudo"></div>
 
+        <script src="pdf-utils.js"></script>
         <script>
             window.renderPDF = function (resultado) {
                 const div = document.getElementById("conteudo");
@@ -88,10 +89,10 @@
                 const colaboradoresArray = Object.values(agrupado);
 
                 div.innerHTML = `
-                <h2>COMISSÕES DE ${dataInicial} À ${dataFinal}</h2>
+                <h2>COMISSÕES DE ${formatDateFromDatabase(dataInicial)} À ${formatDateFromDatabase(dataFinal)}</h2>
 
-                <div class="info"><strong>Valor total das vendas:</strong> R$ ${(totalVendas / 100).toFixed(2)}</div>
-                <div class="info"><strong>Comissão total do período:</strong> R$ ${(totalComissao / 100).toFixed(2)}</div>
+                <div class="info"><strong>Valor total das vendas:</strong> R$ ${formatCurrencyFromDatabase(totalVendas)}</div>
+                <div class="info"><strong>Comissão total do período:</strong> R$ ${formatCurrencyFromDatabase(totalComissao)}</div>
 
                 <h3>Resumo por Setor</h3>
                 <table>
@@ -107,7 +108,7 @@
                                 (s) => `
                             <tr>
                                 <td>${s.setor}</td>
-                                <td>R$ ${(s.valor_total_setor / 100).toFixed(2)}</td>
+                                <td>R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
                             </tr>
                         `
                             )
@@ -115,12 +116,12 @@
 
                         <tr>
                             <td><strong>Total dos Setores</strong></td>
-                            <td><strong>R$ ${(somaSetores / 100).toFixed(2)}</strong></td>
+                            <td><strong>R$ ${formatCurrencyFromDatabase(somaSetores)}</strong></td>
                         </tr>
 
                         <tr>
                             <td><strong>Total dos Setores (sem meritocracia)</strong></td>
-                            <td><strong>R$ ${(somaSemMerito / 100).toFixed(2)}</strong></td>
+                            <td><strong>R$ ${formatCurrencyFromDatabase(somaSemMerito)}</strong></td>
                         </tr>
                     </tbody>
                 </table>
@@ -141,7 +142,7 @@
                             <tr>
                                 <td>${c.colaborador}</td>
                                 <td>${c.setor}</td>
-                                <td>R$ ${(c.totalComissao / 100).toFixed(2)}</td>
+                                <td>R$ ${formatCurrencyFromDatabase(c.totalComissao)}</td>
                             </tr>
                         `
                             )
@@ -150,7 +151,7 @@
                 </table>
 
                 <div class="total-geral">
-                    Total Geral: R$ ${(colaboradoresArray.reduce((acc, c) => acc + c.totalComissao, 0) / 100).toFixed(2)}
+                    Total Geral: R$ ${formatCurrencyFromDatabase(colaboradoresArray.reduce((acc, c) => acc + c.totalComissao, 0))}
                 </div>
             `;
             };
