@@ -53,6 +53,10 @@ function colaboradorElegivel(colaborador, dataComissao) {
 
 export function comissoesAPI(db, saveDatabase) {
     return {
+
+        // ============================================================
+        // GERAR COMISSÕES DO DIA
+        // ============================================================
         async gerar(data) {
             const stmtVenda = db.prepare(`
                 SELECT valor FROM vendas WHERE data = ?
@@ -65,12 +69,9 @@ export function comissoesAPI(db, saveDatabase) {
 
             const comissaoTotal = Math.round(venda.valor * 0.1);
 
-            db.run(
-                `
+            db.run(`
                 UPDATE vendas SET valor_comissao_total = ? WHERE data = ?
-            `,
-                [comissaoTotal, data]
-            );
+            `, [comissaoTotal, data]);
 
             const setoresStmt = db.prepare(`SELECT * FROM setores`);
             const setores = [];
@@ -98,12 +99,12 @@ export function comissoesAPI(db, saveDatabase) {
 
                 const qtdTotal = colaboradores.length;
 
-                const aptos = colaboradores.filter((c) => colaboradorAptoNoDia(db, c.id, data));
+                const aptos = colaboradores.filter(c => colaboradorAptoNoDia(db, c.id, data));
                 const qtdAptos = aptos.length;
 
                 const valorPorColaborador = qtdAptos > 0 ? Math.round(comissaoSetor / qtdAptos) : 0;
 
-                const colaboradoresComValores = colaboradores.map((c) => {
+                const colaboradoresComValores = colaboradores.map(c => {
                     const apto = colaboradorAptoNoDia(db, c.id, data);
                     return {
                         colaborador: c,
@@ -112,28 +113,23 @@ export function comissoesAPI(db, saveDatabase) {
                     };
                 });
 
-                const somaValores = colaboradoresComValores.reduce(
-                    (acc, item) => acc + item.valor,
-                    0
-                );
+                const somaValores = colaboradoresComValores.reduce((acc, item) => acc + item.valor, 0);
                 const ajuste = comissaoSetor - somaValores;
+
                 if (ajuste !== 0) {
                     const itemAjustavel =
-                        colaboradoresComValores.find((item) => item.apto) ||
+                        colaboradoresComValores.find(item => item.apto) ||
                         colaboradoresComValores[0];
                     if (itemAjustavel) {
                         itemAjustavel.valor += ajuste;
                     }
                 }
 
-                db.run(
-                    `
+                db.run(`
                     INSERT INTO venda_comissoes_setores
                     (data, setor_id, percentual_aplicado, valor_total_setor, qtd_total_colaboradores, qtd_aptos_colaboradores)
                     VALUES (?, ?, ?, ?, ?, ?)
-                `,
-                    [data, setor.id, setor.percentual, comissaoSetor, qtdTotal, qtdAptos]
-                );
+                `, [data, setor.id, setor.percentual, comissaoSetor, qtdTotal, qtdAptos]);
 
                 for (const item of colaboradoresComValores) {
                     const c = item.colaborador;
@@ -155,23 +151,20 @@ export function comissoesAPI(db, saveDatabase) {
 
                     const situacao = situacaoRow ? situacaoRow.tipo : "Apto";
 
-                    db.run(
-                        `
+                    db.run(`
                         INSERT INTO comissoes
                         (data, colaborador_id, setor_id, situacao, valor_setor, valor_colaborador, qtd_aptos, qtd_total)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    `,
-                        [
-                            data,
-                            c.id,
-                            setor.id,
-                            situacao,
-                            comissaoSetor,
-                            valorColaborador,
-                            qtdAptos,
-                            qtdTotal
-                        ]
-                    );
+                    `, [
+                        data,
+                        c.id,
+                        setor.id,
+                        situacao,
+                        comissaoSetor,
+                        valorColaborador,
+                        qtdAptos,
+                        qtdTotal
+                    ]);
                 }
             }
 
@@ -179,6 +172,9 @@ export function comissoesAPI(db, saveDatabase) {
             return true;
         },
 
+        // ============================================================
+        // RELATÓRIO POR DIA (opcional)
+        // ============================================================
         async listarPorDia(data) {
             const stmt = db.prepare(`
                 SELECT c.*, col.nome AS colaborador, s.nome AS setor
@@ -190,29 +186,6 @@ export function comissoesAPI(db, saveDatabase) {
             `);
 
             stmt.bind([data]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarMensal(mes, ano) {
-            const mesStr = mes.toString().padStart(2, "0");
-            const anoStr = ano.toString();
-
-            const stmt = db.prepare(`
-                SELECT c.*, col.nome AS colaborador, s.nome AS setor
-                FROM comissoes c
-                JOIN colaboradores col ON col.id = c.colaborador_id
-                JOIN setores s ON s.id = c.setor_id
-                WHERE strftime('%m', c.data) = ?
-                AND strftime('%Y', c.data) = ?
-                ORDER BY col.nome COLLATE NOCASE ASC
-            `);
-
-            stmt.bind([mesStr, anoStr]);
 
             const rows = [];
             while (stmt.step()) rows.push(stmt.getAsObject());
@@ -239,6 +212,9 @@ export function comissoesAPI(db, saveDatabase) {
             return rows;
         },
 
+        // ============================================================
+        // RELATÓRIO POR PERÍODO (TODOS)
+        // ============================================================
         async listarPorPeriodo(dataInicial, dataFinal) {
             const stmt = db.prepare(`
                 SELECT c.*, col.nome AS colaborador, s.nome AS setor
@@ -258,6 +234,9 @@ export function comissoesAPI(db, saveDatabase) {
             return rows;
         },
 
+        // ============================================================
+        // RELATÓRIO POR PERÍODO (COLABORADOR)
+        // ============================================================
         async listarPorPeriodoColaborador(dataInicial, dataFinal, colaboradorId) {
             const stmt = db.prepare(`
                 SELECT c.*, col.nome AS colaborador, s.nome AS setor
@@ -278,6 +257,9 @@ export function comissoesAPI(db, saveDatabase) {
             return rows;
         },
 
+        // ============================================================
+        // RESUMO POR SETOR (TODOS)
+        // ============================================================
         async listarResumoSetoresPorPeriodo(dataInicial, dataFinal) {
             const stmt = db.prepare(`
                 SELECT 
@@ -301,6 +283,9 @@ export function comissoesAPI(db, saveDatabase) {
             return rows;
         },
 
+        // ============================================================
+        // RESUMO POR SETOR (COLABORADOR)
+        // ============================================================
         async listarResumoSetoresColaboradorPeriodo(dataInicial, dataFinal, colaboradorId) {
             const stmt = db.prepare(`
                 SELECT 
@@ -315,128 +300,6 @@ export function comissoesAPI(db, saveDatabase) {
             `);
 
             stmt.bind([dataInicial, dataFinal, colaboradorId]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarResumoSetoresColaboradorPeriodo(dataInicial, dataFinal, colaboradorId) {
-            const stmt = db.prepare(`
-                SELECT 
-                    s.nome AS setor,
-                    SUM(c.valor_setor) AS valor_total_setor,
-                    SUM(c.valor_colaborador) AS valor_total_colaborador
-                FROM comissoes c
-                JOIN setores s ON s.id = c.setor_id
-                WHERE c.data BETWEEN ? AND ?
-                AND c.colaborador_id = ?
-                GROUP BY setor
-            `);
-
-            stmt.bind([dataInicial, dataFinal, colaboradorId]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarMensalTodos(mes, ano) {
-            const mesStr = mes.toString().padStart(2, "0");
-            const anoStr = ano.toString();
-
-            const stmt = db.prepare(`
-                SELECT c.*, col.nome AS colaborador, s.nome AS setor
-                FROM comissoes c
-                JOIN colaboradores col ON col.id = c.colaborador_id
-                JOIN setores s ON s.id = c.setor_id
-                WHERE strftime('%m', c.data) = ?
-                AND strftime('%Y', c.data) = ?
-                ORDER BY col.nome COLLATE NOCASE ASC, c.data ASC
-            `);
-
-            stmt.bind([mesStr, anoStr]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarMensalColaborador(mes, ano, colaboradorId) {
-            const mesStr = mes.toString().padStart(2, "0");
-            const anoStr = ano.toString();
-
-            const stmt = db.prepare(`
-                SELECT c.*, col.nome AS colaborador, s.nome AS setor
-                FROM comissoes c
-                JOIN colaboradores col ON col.id = c.colaborador_id
-                JOIN setores s ON s.id = c.setor_id
-                WHERE strftime('%m', c.data) = ?
-                AND strftime('%Y', c.data) = ?
-                AND c.colaborador_id = ?
-                ORDER BY c.data ASC
-            `);
-
-            stmt.bind([mesStr, anoStr, colaboradorId]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarResumoSetoresMensal(mes, ano) {
-            const mesStr = mes.toString().padStart(2, "0");
-            const anoStr = ano.toString();
-
-            const stmt = db.prepare(`
-                SELECT 
-                    s.nome AS setor,
-                    SUM(vcs.valor_total_setor) AS valor_total_setor,
-                    SUM(vcs.qtd_total_colaboradores) AS qtd_total_colaboradores,
-                    SUM(vcs.qtd_aptos_colaboradores) AS qtd_aptos_colaboradores
-                FROM venda_comissoes_setores vcs
-                JOIN setores s ON s.id = vcs.setor_id
-                WHERE strftime('%m', vcs.data) = ?
-                AND strftime('%Y', vcs.data) = ?
-                GROUP BY setor
-                ORDER BY setor ASC
-            `);
-
-            stmt.bind([mesStr, anoStr]);
-
-            const rows = [];
-            while (stmt.step()) rows.push(stmt.getAsObject());
-            stmt.free();
-
-            return rows;
-        },
-
-        async listarResumoSetoresColaboradorMensal(mes, ano, colaboradorId) {
-            const mesStr = mes.toString().padStart(2, "0");
-            const anoStr = ano.toString();
-
-            const stmt = db.prepare(`
-                SELECT 
-                    s.nome AS setor,
-                    SUM(c.valor_setor) AS valor_total_setor,
-                    SUM(c.valor_colaborador) AS valor_total_colaborador
-                FROM comissoes c
-                JOIN setores s ON s.id = c.setor_id
-                WHERE strftime('%m', c.data) = ?
-                AND strftime('%Y', c.data) = ?
-                AND c.colaborador_id = ?
-                GROUP BY setor
-            `);
-
-            stmt.bind([mesStr, anoStr, colaboradorId]);
 
             const rows = [];
             while (stmt.step()) rows.push(stmt.getAsObject());

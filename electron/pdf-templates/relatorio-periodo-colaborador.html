@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Relatório de Comissões — Colaborador</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 25px;
+                font-size: 14px;
+            }
+
+            h2 {
+                margin-bottom: 5px;
+            }
+
+            h3 {
+                margin-top: 25px;
+                margin-bottom: 10px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            th,
+            td {
+                border: 1px solid #ccc;
+                padding: 6px;
+            }
+
+            th {
+                background: #eee;
+            }
+
+            .info {
+                margin-bottom: 8px;
+            }
+
+            .total-geral {
+                margin-top: 20px;
+                font-weight: bold;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="conteudo"></div>
+
+        <script src="pdf-utils.js"></script>
+        <script src="pdf-utils-titulo-colaborador.js"></script>
+
+        <script>
+            window.renderPDF = function (resultado) {
+                const div = document.getElementById("conteudo");
+
+                const { dados, resumoSetores } = resultado.dados;
+                const { dataInicial, dataFinal } = resultado;
+
+                const nomeColaborador = dados.length > 0 ? dados[0].colaborador : "Colaborador";
+
+                const titulo = gerarTituloPeriodoColaborador(
+                    nomeColaborador,
+                    dataInicial,
+                    dataFinal
+                );
+
+                const totalGeral = dados.reduce(
+                    (acc, row) => acc + row.valor_colaborador,
+                    0
+                );
+
+                div.innerHTML = `
+                    <h2>${titulo}</h2>
+
+                    <h3>Resumo por Setor</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setor</th>
+                                <th>Valor Total do Setor</th>
+                                <th>Valor Total do Colaborador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${resumoSetores
+                                .map(
+                                    (s) => `
+                                <tr>
+                                    <td>${s.setor}</td>
+                                    <td>R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
+                                    <td>R$ ${formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
+                                </tr>
+                            `
+                                )
+                                .join("")}
+                        </tbody>
+                    </table>
+
+                    <h3>Detalhamento das Comissões</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Situação</th>
+                                <th>Qtde Colab.</th>
+                                <th>Qtde Aptos</th>
+                                <th>Comissão Setor</th>
+                                <th>Comissão Colaborador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${dados
+                                .map(
+                                    (d) => `
+                                <tr>
+                                    <td>${formatDateFromDatabase(d.data)}</td>
+                                    <td>${d.situacao}</td>
+                                    <td>${d.qtd_total}</td>
+                                    <td>${d.qtd_aptos}</td>
+                                    <td>R$ ${formatCurrencyFromDatabase(d.valor_setor)}</td>
+                                    <td>R$ ${formatCurrencyFromDatabase(d.valor_colaborador)}</td>
+                                </tr>
+                            `
+                                )
+                                .join("")}
+                        </tbody>
+                    </table>
+
+                    <div class="total-geral">
+                        Total Geral: R$ ${formatCurrencyFromDatabase(totalGeral)}
+                    </div>
+                `;
+            };
+        </script>
+    </body>
+</html>

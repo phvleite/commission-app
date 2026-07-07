@@ -42,6 +42,47 @@ ipcMain.handle("pdf:gerarPeriodoTodos", async (event, resultado) => {
     return filePath;
 });
 
+ipcMain.handle("pdf:gerarPeriodoColaborador", async (event, resultado) => {
+    const win = new BrowserWindow({
+        show: false,
+        webPreferences: {
+            sandbox: false
+        }
+    });
+
+    const templatePath = path.join(
+        __dirname,
+        "pdf-templates",
+        "relatorio-periodo-colaborador.html"
+    );
+
+    await win.loadFile(templatePath);
+
+    await win.webContents.executeJavaScript(`window.renderPDF(${JSON.stringify(resultado)});`);
+
+    const pdfBuffer = await win.webContents.printToPDF({
+        printBackground: true,
+        marginsType: 1
+    });
+
+    const filePath = path.join(
+        process.env.USERPROFILE || process.env.HOME,
+        "Relatorio-Periodo-Colaborador.pdf"
+    );
+
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    try {
+        win.close();
+    } catch (e) {}
+
+    try {
+        await shell.openPath(filePath);
+    } catch (e) {}
+
+    return filePath;
+});
+
 function createWindow() {
     const userDataPath = app.getPath("userData");
 

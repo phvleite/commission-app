@@ -26,9 +26,19 @@ export function useComissoes() {
         setLoading(true);
         setErro(null);
         try {
-            const dados = await window.api.comissoes.listarPorPeriodoColaborador(dataInicial, dataFinal, colaboradorId);
-            const resumoSetor = await window.api.comissoes.listarResumoSetoresColaboradorPeriodo(dataInicial, dataFinal, colaboradorId);
-            return { dados, resumoSetor };
+            const dados = await window.api.comissoes.listarPorPeriodoColaborador(
+                dataInicial,
+                dataFinal,
+                colaboradorId
+            );
+
+            const resumoSetores = await window.api.comissoes.listarResumoSetoresColaboradorPeriodo(
+                dataInicial,
+                dataFinal,
+                colaboradorId
+            );
+            
+            return { dados, resumoSetores };
         } catch (e) {
             setErro("Erro ao buscar comissões do colaborador por período.");
             return null;
