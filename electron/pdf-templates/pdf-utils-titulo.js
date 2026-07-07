@@ -1,6 +1,13 @@
-import { formatDateToBR } from "./pdf-utils.js";
+function formatDateToBR(dateStr) {
+    if (!dateStr) return "";
 
-export function gerarTituloPeriodo(dataInicial, dataFinal) {
+    const [yyyy, mm, dd] = dateStr.split("-");
+    if (!yyyy || !mm || !dd) return dateStr;
+
+    return `${dd}/${mm}/${yyyy}`;
+}
+
+function gerarTituloPeriodo(dataInicial, dataFinal) {
     if (!dataInicial || !dataFinal) {
         return "PERÍODO INVÁLIDO";
     }

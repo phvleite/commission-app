@@ -51,6 +51,7 @@
     <body>
         <div id="conteudo"></div>
 
+        <script src="pdf-utils-titulo.js"></script>
         <script src="pdf-utils.js"></script>
         <script>
             window.renderPDF = function (resultado) {
@@ -59,10 +60,13 @@
                 const { dados, resumoSetores } = resultado.dados;
                 const { vendasPeriodo, dataInicial, dataFinal } = resultado;
 
+                // NOVO TÍTULO DINÂMICO
+                const titulo = gerarTituloPeriodo(dataInicial, dataFinal);
+
                 // Totais do período
                 const totalVendas = vendasPeriodo.reduce((acc, v) => acc + v.valor, 0);
-                const totalComissao = vendasPeriodo.reduce(
-                    (acc, v) => acc + v.valor_comissao_total,
+                const totalComissao = resumoSetores.reduce(
+                    (acc, s) => acc + s.valor_total_setor,
                     0
                 );
 
@@ -72,9 +76,9 @@
                     .filter((s) => s.setor.toUpperCase() !== "MERITOCRACIA")
                     .reduce((acc, s) => acc + s.valor_total_setor, 0);
 
-                // Agrupar colaboradores (usar mesmo critério da UI: soma `valor_colaborador` por colaborador)
+                // Agrupar colaboradores por colaborador+setor como no renderer
                 const agrupado = dados.reduce((acc, item) => {
-                    const key = item.colaborador;
+                    const key = `${item.colaborador}_${item.setor}`;
                     if (!acc[key]) {
                         acc[key] = {
                             colaborador: item.colaborador,
@@ -82,17 +86,17 @@
                             totalComissao: 0
                         };
                     }
-                    acc[key].totalComissao += item.valor_colaborador;
+                    acc[key].totalComissao += item.valor_total_setor;
                     return acc;
                 }, {});
 
                 const colaboradoresArray = Object.values(agrupado);
 
                 div.innerHTML = `
-                <h2>COMISSÕES DE ${formatDateFromDatabase(dataInicial)} À ${formatDateFromDatabase(dataFinal)}</h2>
+                    <h2>${titulo}</h2>
 
-                <div class="info"><strong>Valor total das vendas:</strong> R$ ${formatCurrencyFromDatabase(totalVendas)}</div>
-                <div class="info"><strong>Comissão total do período:</strong> R$ ${formatCurrencyFromDatabase(totalComissao)}</div>
+                    <div class="info"><strong>Valor total das vendas:</strong> R$ ${formatCurrencyFromDatabase(totalVendas)}</div>
+                    <div class="info"><strong>Comissão total do período:</strong> R$ ${formatCurrencyFromDatabase(totalComissao)}</div>
 
                 <h3>Resumo por Setor</h3>
                 <table>

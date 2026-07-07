@@ -1,5 +1,4 @@
 export function comissoesMigrations(db) {
-
     db.run(`
         CREATE TABLE IF NOT EXISTS comissoes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,9 +53,7 @@ function colaboradorElegivel(colaborador, dataComissao) {
 
 export function comissoesAPI(db, saveDatabase) {
     return {
-
         async gerar(data) {
-
             const stmtVenda = db.prepare(`
                 SELECT valor FROM vendas WHERE data = ?
             `);
@@ -68,9 +65,12 @@ export function comissoesAPI(db, saveDatabase) {
 
             const comissaoTotal = Math.round(venda.valor * 0.1);
 
-            db.run(`
+            db.run(
+                `
                 UPDATE vendas SET valor_comissao_total = ? WHERE data = ?
-            `, [comissaoTotal, data]);
+            `,
+                [comissaoTotal, data]
+            );
 
             const setoresStmt = db.prepare(`SELECT * FROM setores`);
             const setores = [];
@@ -81,7 +81,6 @@ export function comissoesAPI(db, saveDatabase) {
             db.run(`DELETE FROM venda_comissoes_setores WHERE data = ?`, [data]);
 
             for (const setor of setores) {
-
                 const comissaoSetor = Math.round(comissaoTotal * (setor.percentual / 100));
 
                 const colStmt = db.prepare(`
@@ -99,29 +98,47 @@ export function comissoesAPI(db, saveDatabase) {
 
                 const qtdTotal = colaboradores.length;
 
-                const aptos = colaboradores.filter(c => colaboradorAptoNoDia(db, c.id, data));
+                const aptos = colaboradores.filter((c) => colaboradorAptoNoDia(db, c.id, data));
                 const qtdAptos = aptos.length;
 
-                const valorPorColaborador = qtdAptos > 0
-                    ? Math.round(comissaoSetor / qtdAptos)
-                    : 0;
+                const valorPorColaborador = qtdAptos > 0 ? Math.round(comissaoSetor / qtdAptos) : 0;
 
-                db.run(`
+                const colaboradoresComValores = colaboradores.map((c) => {
+                    const apto = colaboradorAptoNoDia(db, c.id, data);
+                    return {
+                        colaborador: c,
+                        apto,
+                        valor: apto ? valorPorColaborador : 0
+                    };
+                });
+
+                const somaValores = colaboradoresComValores.reduce(
+                    (acc, item) => acc + item.valor,
+                    0
+                );
+                const ajuste = comissaoSetor - somaValores;
+                if (ajuste !== 0) {
+                    const itemAjustavel =
+                        colaboradoresComValores.find((item) => item.apto) ||
+                        colaboradoresComValores[0];
+                    if (itemAjustavel) {
+                        itemAjustavel.valor += ajuste;
+                    }
+                }
+
+                db.run(
+                    `
                     INSERT INTO venda_comissoes_setores
                     (data, setor_id, percentual_aplicado, valor_total_setor, qtd_total_colaboradores, qtd_aptos_colaboradores)
                     VALUES (?, ?, ?, ?, ?, ?)
-                `, [
-                    data,
-                    setor.id,
-                    setor.percentual,
-                    comissaoSetor,
-                    qtdTotal,
-                    qtdAptos
-                ]);
+                `,
+                    [data, setor.id, setor.percentual, comissaoSetor, qtdTotal, qtdAptos]
+                );
 
-                for (const c of colaboradores) {
-
-                    const apto = colaboradorAptoNoDia(db, c.id, data);
+                for (const item of colaboradoresComValores) {
+                    const c = item.colaborador;
+                    const apto = item.apto;
+                    const valorColaborador = item.valor;
 
                     const stmtSit = db.prepare(`
                         SELECT t.descricao AS tipo
@@ -138,20 +155,23 @@ export function comissoesAPI(db, saveDatabase) {
 
                     const situacao = situacaoRow ? situacaoRow.tipo : "Apto";
 
-                    db.run(`
+                    db.run(
+                        `
                         INSERT INTO comissoes
                         (data, colaborador_id, setor_id, situacao, valor_setor, valor_colaborador, qtd_aptos, qtd_total)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    `, [
-                        data,
-                        c.id,
-                        setor.id,
-                        situacao,
-                        comissaoSetor,
-                        apto ? valorPorColaborador : 0,
-                        qtdAptos,
-                        qtdTotal
-                    ]);
+                    `,
+                        [
+                            data,
+                            c.id,
+                            setor.id,
+                            situacao,
+                            comissaoSetor,
+                            valorColaborador,
+                            qtdAptos,
+                            qtdTotal
+                        ]
+                    );
                 }
             }
 
@@ -423,7 +443,6 @@ export function comissoesAPI(db, saveDatabase) {
             stmt.free();
 
             return rows;
-        },
-       
-    };  
+        }
+    };
 }

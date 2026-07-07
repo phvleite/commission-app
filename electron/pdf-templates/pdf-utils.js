@@ -23,3 +23,4 @@ function formatCurrencyFromDatabase(centavos) {
 function formatDateFromDatabase(dateStr) {
     return formatDateToBR(dateStr);
 }
+
