@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Relatório de Comissões</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 25px;
+                font-size: 14px;
+            }
+
+            h2 {
+                margin-bottom: 5px;
+            }
+
+            h3 {
+                margin-top: 25px;
+                margin-bottom: 10px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            th,
+            td {
+                border: 1px solid #ccc;
+                padding: 6px;
+            }
+
+            th {
+                background: #eee;
+            }
+
+            .info {
+                margin-bottom: 8px;
+            }
+
+            .total-geral {
+                margin-top: 20px;
+                font-weight: bold;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="conteudo"></div>
+
+        <script>
+            window.renderPDF = function (resultado) {
+                const div = document.getElementById("conteudo");
+
+                const { dados, resumoSetores } = resultado.dados;
+                const { vendasPeriodo, dataInicial, dataFinal } = resultado;
+
+                // Totais do período
+                const totalVendas = vendasPeriodo.reduce((acc, v) => acc + v.valor, 0);
+                const totalComissao = vendasPeriodo.reduce(
+                    (acc, v) => acc + v.valor_comissao_total,
+                    0
+                );
+
+                // Totais dos setores
+                const somaSetores = resumoSetores.reduce((acc, s) => acc + s.valor_total_setor, 0);
+                const somaSemMerito = resumoSetores
+                    .filter((s) => s.setor.toUpperCase() !== "MERITOCRACIA")
+                    .reduce((acc, s) => acc + s.valor_total_setor, 0);
+
+                // Agrupar colaboradores (usar mesmo critério da UI: soma `valor_colaborador` por colaborador)
+                const agrupado = dados.reduce((acc, item) => {
+                    const key = item.colaborador;
+                    if (!acc[key]) {
+                        acc[key] = {
+                            colaborador: item.colaborador,
+                            setor: item.setor,
+                            totalComissao: 0
+                        };
+                    }
+                    acc[key].totalComissao += item.valor_colaborador;
+                    return acc;
+                }, {});
+
+                const colaboradoresArray = Object.values(agrupado);
+
+                div.innerHTML = `
+                <h2>COMISSÕES DE ${dataInicial} À ${dataFinal}</h2>
+
+                <div class="info"><strong>Valor total das vendas:</strong> R$ ${(totalVendas / 100).toFixed(2)}</div>
+                <div class="info"><strong>Comissão total do período:</strong> R$ ${(totalComissao / 100).toFixed(2)}</div>
+
+                <h3>Resumo por Setor</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setor</th>
+                            <th>Valor Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${resumoSetores
+                            .map(
+                                (s) => `
+                            <tr>
+                                <td>${s.setor}</td>
+                                <td>R$ ${(s.valor_total_setor / 100).toFixed(2)}</td>
+                            </tr>
+                        `
+                            )
+                            .join("")}
+
+                        <tr>
+                            <td><strong>Total dos Setores</strong></td>
+                            <td><strong>R$ ${(somaSetores / 100).toFixed(2)}</strong></td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Total dos Setores (sem meritocracia)</strong></td>
+                            <td><strong>R$ ${(somaSemMerito / 100).toFixed(2)}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Comissões por Colaborador</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Colaborador</th>
+                            <th>Setor</th>
+                            <th>Total no Período</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${colaboradoresArray
+                            .map(
+                                (c) => `
+                            <tr>
+                                <td>${c.colaborador}</td>
+                                <td>${c.setor}</td>
+                                <td>R$ ${(c.totalComissao / 100).toFixed(2)}</td>
+                            </tr>
+                        `
+                            )
+                            .join("")}
+                    </tbody>
+                </table>
+
+                <div class="total-geral">
+                    Total Geral: R$ ${(colaboradoresArray.reduce((acc, c) => acc + c.totalComissao, 0) / 100).toFixed(2)}
+                </div>
+            `;
+            };
+        </script>
+    </body>
+</html>

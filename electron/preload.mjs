@@ -10,7 +10,7 @@ import { colaboradoresAPI, colaboradoresMigrations } from "./database/colaborado
 import { situacoesAPI, situacoesMigrations } from "./database/situacoes.mjs";
 import { vendasAPI, vendasMigrations } from "./database/vendas.mjs";
 import { comissoesAPI, comissoesMigrations } from "./database/comissoes.mjs";
-
+import { pdfAPI } from "./pdf.mjs";
 // ------------------------------------------------------------
 // CONFIGURAÇÕES BÁSICAS
 // ------------------------------------------------------------
@@ -34,6 +34,8 @@ const dbPath = isDev
 let db = null;
 let SQL = null;
 
+const pdf = pdfAPI();
+
 // ------------------------------------------------------------
 // INICIALIZAÇÃO DO BANCO + SQL.js
 // ------------------------------------------------------------
@@ -53,12 +55,24 @@ async function init() {
     SQL = await initSqlJs({
         locateFile: (file) => {
             if (isDev) {
-                // DEV → procura no node_modules/sql.js/dist/
-                return path.join(__dirname, "../node_modules/sql.js/dist", file);
+                // DEV → carrega via URL absoluta
+                return pathToFileURL(path.join(__dirname, "sql-wasm.wasm")).href;
             }
-            return path.join(process.resourcesPath, file); // PRODUÇÃO → resources/sql-wasm.wasm
+
+            // PRODUÇÃO → carrega via URL absoluta
+            return pathToFileURL(path.join(process.resourcesPath, "sql-wasm.wasm")).href;
         }
     });
+
+    // SQL = await initSqlJs({
+    //     locateFile: (file) => {
+    //         if (isDev) {
+    //             // DEV → procura no node_modules/sql.js/dist/
+    //             return path.join(__dirname, "../node_modules/sql.js/dist", file);
+    //         }
+    //         return path.join(process.resourcesPath, file); // PRODUÇÃO → resources/sql-wasm.wasm
+    //     }
+    // });
 
     if (fs.existsSync(dbPath)) {
         const fileBuffer = fs.readFileSync(dbPath);
@@ -103,6 +117,7 @@ contextBridge.exposeInMainWorld("api", {
     situacoes,
     vendas,
     comissoes,
+    pdf,
 
     manutencao: {
         async dropVendas() {

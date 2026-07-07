@@ -1,5 +1,52 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const path = require("path");
+const fs = require("fs");
+
+ipcMain.handle("pdf:gerarPeriodoTodos", async (event, resultado) => {
+    console.log("[pdf] gerarPeriodoTodos invoked");
+    const win = new BrowserWindow({
+        show: false,
+        webPreferences: {
+            sandbox: false
+        }
+    });
+
+    // caminho do template (relativo à pasta electron)
+    const templatePath = path.join(__dirname, "pdf-templates", "relatorio-periodo-todos.html");
+
+    console.log("[pdf] loading template:", templatePath);
+    await win.loadFile(templatePath);
+
+    await win.webContents.executeJavaScript(`window.renderPDF(${JSON.stringify(resultado)});`);
+
+    const pdfBuffer = await win.webContents.printToPDF({
+        printBackground: true,
+        marginsType: 1
+    });
+
+    const filePath = path.join(
+        process.env.USERPROFILE || process.env.HOME,
+        "Relatorio-Periodo-Todos.pdf"
+    );
+
+    fs.writeFileSync(filePath, pdfBuffer);
+    console.log("[pdf] saved to", filePath);
+
+    // fecha a janela criada
+    try {
+        win.close();
+    } catch (e) {}
+
+    // tenta abrir o PDF automaticamente
+    try {
+        await shell.openPath(filePath);
+        console.log("[pdf] opened", filePath);
+    } catch (e) {
+        console.warn("[pdf] could not open file automatically", e && e.message);
+    }
+
+    return filePath;
+});
 
 function createWindow() {
     const userDataPath = app.getPath("userData");
