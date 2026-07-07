@@ -36,8 +36,6 @@ const dbPath = isDev
 let db = null;
 let SQL = null;
 
-const pdf = pdfAPI();
-
 // ------------------------------------------------------------
 // INICIALIZAÇÃO DO BANCO + SQL.js
 // ------------------------------------------------------------
@@ -112,6 +110,7 @@ const colaboradores = colaboradoresAPI(db, saveDatabase);
 const situacoes = situacoesAPI(db, saveDatabase);
 const comissoes = comissoesAPI(db, saveDatabase);
 const vendas = vendasAPI(db, saveDatabase, comissoes);
+const pdf = pdfAPI();
 
 contextBridge.exposeInMainWorld("api", {
     setores,

@@ -6,12 +6,12 @@ export default function RelatorioPeriodoTodos({ resultado }) {
     const { vendasPeriodo = [], dataInicial, dataFinal } = resultado;
 
     const {
-        gerarTituloPeriodoTodos,
+        gerarTituloPeriodo,
         agruparPorColaborador,
         calcularTotalGeral
     } = useComissoes();
 
-    const titulo = gerarTituloPeriodoTodos(dataInicial, dataFinal);
+    const titulo = gerarTituloPeriodo(dataInicial, dataFinal);
 
     // Agrupar por colaborador
     const agrupado = agruparPorColaborador(dados);

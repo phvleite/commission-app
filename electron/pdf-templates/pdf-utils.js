@@ -1,4 +1,4 @@
-function formatDateBR(dateStr) {
+function formatDateToBR(dateStr) {
     if (!dateStr) return "";
 
     const [yyyy, mm, dd] = dateStr.split("-");
@@ -21,5 +21,5 @@ function formatCurrencyFromDatabase(centavos) {
 }
 
 function formatDateFromDatabase(dateStr) {
-    return formatDateBR(dateStr);
+    return formatDateToBR(dateStr);
 }

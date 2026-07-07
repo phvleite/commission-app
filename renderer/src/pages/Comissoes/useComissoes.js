@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { formatDateFromDatabase } from "../../utils/formatDate";
 import { formatCurrencyFromDatabase } from "../../utils/formatCurrency";
+import { gerarTituloPeriodo } from "../../utils/gerarTituloPeriodo";
 
 export function useComissoes() {
     const [loading, setLoading] = useState(false);
@@ -36,58 +37,6 @@ export function useComissoes() {
         }
     }
 
-    async function listarMensalTodos(mes, ano) {
-        setLoading(true);
-        setErro(null);
-        try {
-            const dados = await window.api.comissoes.listarMensalTodos(mes, ano);
-            const resumoSetores = await window.api.comissoes.listarResumoSetoresMensal(mes, ano);
-            return { dados, resumoSetores };
-        } catch (e) {
-            setErro("Erro ao buscar comissões mensais.");
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function listarMensalColaborador(mes, ano, colaboradorId) {
-        setLoading(true);
-        setErro(null);
-        try {
-            const dados = await window.api.comissoes.listarMensalColaborador(mes, ano, colaboradorId);
-            const resumoSetor = await window.api.comissoes.listarResumoSetoresColaboradorMensal(mes, ano, colaboradorId);
-            return { dados, resumoSetor };
-        } catch (e) {
-            setErro("Erro ao buscar comissões mensais do colaborador.");
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function gerarTituloPeriodoTodos(dataInicial, dataFinal) {
-        if (dataInicial === dataFinal) {
-            return `COMISSÕES DE ${formatDateFromDatabase(dataInicial)}`;
-        }
-        return `COMISSÕES DE ${formatDateFromDatabase(dataInicial)} À ${formatDateFromDatabase(dataFinal)}`;
-    }
-
-    function gerarTituloPeriodoColaborador(nome, dataInicial, dataFinal) {
-        if (dataInicial === dataFinal) {
-            return `COMISSÕES ${nome} EM ${formatDateFromDatabase(dataInicial)}`;
-        }
-        return `COMISSÕES ${nome} NO PERÍODO DE ${formatDateFromDatabase(dataInicial)} À ${formatDateFromDatabase(dataFinal)}`;
-    }
-
-    function gerarTituloMensalTodos(mesLabel, ano) {
-        return `COMISSÕES REF. ${mesLabel}/${ano}`;
-    }
-
-    function gerarTituloMensalColaborador(nome, mesLabel, ano) {
-        return `COMISSÕES ${nome} EM ${mesLabel}/${ano}`;
-    }
-
     function agruparPorColaborador(dados) {
         const mapa = new Map();
 
@@ -114,13 +63,8 @@ export function useComissoes() {
         erro,
         listarPorPeriodo,
         listarPorPeriodoColaborador,
-        listarMensalTodos,
-        listarMensalColaborador,
-        gerarTituloPeriodoTodos,
-        gerarTituloPeriodoColaborador,
-        gerarTituloMensalTodos,
-        gerarTituloMensalColaborador,
         agruparPorColaborador,
-        calcularTotalGeral
+        calcularTotalGeral,
+        gerarTituloPeriodo
     };
 }
