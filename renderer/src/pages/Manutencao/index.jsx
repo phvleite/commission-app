@@ -13,26 +13,42 @@ export default function ManutencaoPage() {
         setMensagem("Tabela COMISSOES foi recriada com sucesso.");
     }
 
+    async function dropVendasComissoesSetores() {
+        await window.api.manutencao.dropVendasComissoesSetores();
+        setMensagem("Tabela VENDA_COMISSOES_SETORES foi recriada com sucesso.");
+    }
+
     async function resetBanco() {
         await window.api.manutencao.resetBanco();
         setMensagem("Banco de dados foi resetado completamente.");
     }
 
     return (
-        <div style={{ padding: 20 }}>
+        <div style={
+                {
+                    padding: 20,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start"
+                }
+            }>
             <h2>Manutenção do Sistema</h2>
 
             <p>Use estas opções apenas durante testes.</p>
 
-            <button onClick={dropVendas} style={{ marginRight: 10 }}>
+            <button onClick={dropVendas} style={{ margin: 10, width: 300 }}>
                 Recriar tabela Vendas
             </button>
 
-            <button onClick={dropComissoes} style={{ marginRight: 10 }}>
+            <button onClick={dropComissoes} style={{ margin: 10, width: 300 }}>
                 Recriar tabela Comissões
             </button>
 
-            <button onClick={resetBanco} style={{ background: "red", color: "#fff" }}>
+            <button onClick={dropVendasComissoesSetores} style={{ margin: 10, width: 300 }}>
+                Recriar tabela Venda Comissões Setores
+            </button>
+
+            <button onClick={resetBanco} style={{ margin: 10, width: 300, background: "red", color: "#fff" }}>
                 Resetar banco inteiro
             </button>
 

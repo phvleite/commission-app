@@ -6,9 +6,9 @@
 
         <style>
             body {
-                font-family: Arial, sans-serif;
-                padding: 25px;
-                font-size: 14px;
+                font-family: Segoe UI, Arial, sans-serif;
+                padding: 5px;
+                font-size: 11px;
             }
 
             h2 {
@@ -16,20 +16,20 @@
             }
 
             h3 {
-                margin-top: 25px;
-                margin-bottom: 10px;
+                margin-top: 20px;
+                margin-bottom: 5px;
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-top: 10px;
+                margin-top: 5px;
             }
 
             th,
             td {
                 border: 1px solid #ccc;
-                padding: 6px;
+                padding: 5px;
             }
 
             th {
@@ -69,7 +69,8 @@
                 const { dados, resumoSetores } = resultado.dados;
                 const { dataInicial, dataFinal } = resultado;
 
-                const nomeColaborador = dados.length > 0 ? dados[0].colaborador : "Colaborador";
+                const nomeColaborador =
+                    dados.length > 0 ? dados[0].colaborador.toUpperCase() : "COLABORADOR";
 
                 const titulo = gerarTituloPeriodoColaborador(
                     nomeColaborador,
@@ -77,13 +78,10 @@
                     dataFinal
                 );
 
-                const totalGeral = dados.reduce(
-                    (acc, row) => acc + row.valor_colaborador,
-                    0
-                );
+                const totalGeral = dados.reduce((acc, row) => acc + row.valor_colaborador, 0);
 
                 div.innerHTML = `
-                    <h2>${titulo}</h2>
+                    <span class="col-qtd"><h3>${titulo}</h3></span>
 
                     <h3>Resumo por Setor</h3>
                     <table>
@@ -126,8 +124,8 @@
                                 .map(
                                     (d) => `
                                 <tr>
-                                    <td>${formatDateFromDatabase(d.data)}</td>
-                                    <td>${d.situacao}</td>
+                                    <td class="col-qtd">${formatDateFromDatabase(d.data)}</td>
+                                    <td class="col-qtd">${d.situacao}</td>
                                     <td class="col-qtd">${d.qtd_total}</td>
                                     <td class="col-qtd">${d.qtd_aptos}</td>
                                     <td class="col-valor">R$ ${formatCurrencyFromDatabase(d.valor_setor)}</td>

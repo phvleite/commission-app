@@ -1435,5 +1435,6 @@ select.input:focus {
 .commission-colab {
     display: flex;
     flex-direction: column;
-    width: 360px;
+    flex: 1 1 auto;
+    min-width: 160px;
 }

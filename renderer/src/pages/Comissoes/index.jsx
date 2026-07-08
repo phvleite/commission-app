@@ -15,10 +15,7 @@ export default function ComissoesPage() {
 
     const { addToast } = useToast();
 
-    const {
-        listarPorPeriodo,
-        listarPorPeriodoColaborador
-    } = useComissoes();
+    const { listarPorPeriodo, listarPorPeriodoColaborador } = useComissoes();
 
     // Carregar colaboradores
     useEffect(() => {
@@ -113,7 +110,10 @@ export default function ComissoesPage() {
                 <hr />
 
                 {/* FILTROS */}
-                <div className="situ-filters">
+                <div
+                    className="situ-filters"
+                    style={{ flexWrap: "nowrap", alignItems: "flex-end" }}
+                >
                     <div className="situ-filter-group">
                         <label>Data Inicial</label>
                         <input
@@ -159,9 +159,7 @@ export default function ComissoesPage() {
             </div>
 
             {/* RENDERIZAÇÃO DO RELATÓRIO */}
-            {resultado?.tipo === "periodo-todos" && (
-                <RelatorioPeriodoTodos resultado={resultado} />
-            )}
+            {resultado?.tipo === "periodo-todos" && <RelatorioPeriodoTodos resultado={resultado} />}
 
             {resultado?.tipo === "periodo-colaborador" && (
                 <RelatorioPeriodoColaborador resultado={resultado} />

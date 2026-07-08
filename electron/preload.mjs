@@ -64,16 +64,6 @@ async function init() {
         }
     });
 
-    // SQL = await initSqlJs({
-    //     locateFile: (file) => {
-    //         if (isDev) {
-    //             // DEV → procura no node_modules/sql.js/dist/
-    //             return path.join(__dirname, "../node_modules/sql.js/dist", file);
-    //         }
-    //         return path.join(process.resourcesPath, file); // PRODUÇÃO → resources/sql-wasm.wasm
-    //     }
-    // });
-
     if (fs.existsSync(dbPath)) {
         const fileBuffer = fs.readFileSync(dbPath);
         db = new SQL.Database(fileBuffer);
@@ -130,6 +120,13 @@ contextBridge.exposeInMainWorld("api", {
 
         async dropComissoes() {
             db.run("DROP TABLE IF EXISTS comissoes");
+            db.run("DROP TABLE IF EXISTS venda_comissoes_setores");
+            comissoesMigrations(db);
+            saveDatabase();
+            return true;
+        },
+
+        async dropVendasComissoesSetores() {
             db.run("DROP TABLE IF EXISTS venda_comissoes_setores");
             comissoesMigrations(db);
             saveDatabase();

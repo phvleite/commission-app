@@ -7,14 +7,10 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
     const { dataInicial, dataFinal } = resultado;
 
     // Nome do colaborador (vem em cada linha)
-    const nomeColaborador = dados.length > 0 ? dados[0].colaborador : "Colaborador";
+    const nomeColaborador = dados.length > 0 ? dados[0].colaborador.toUpperCase() : "COLABORADOR";
 
     // Título inteligente
-    const titulo = gerarTituloPeriodoColaborador(
-        nomeColaborador,
-        dataInicial,
-        dataFinal
-    );
+    const titulo = gerarTituloPeriodoColaborador(nomeColaborador, dataInicial, dataFinal);
 
     // Total geral do colaborador
     const totalGeral = dados.reduce((acc, row) => acc + row.valor_colaborador, 0);
@@ -37,8 +33,12 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                     {resumoSetores.map((s, idx) => (
                         <tr key={idx}>
                             <td>{s.setor}</td>
-                            <td className="col-valor">R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
-                            <td className="col-valor">R$ {formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(s.valor_total_setor)}
+                            </td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(s.valor_total_colaborador)}
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -49,7 +49,7 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                 <thead>
                     <tr>
                         <th>Data</th>
-                        <th>Situação</th>
+                        <th className="col-qtd">Situação</th>
                         <th className="col-qtd">Qtde Colab.</th>
                         <th className="col-qtd">Qtde Aptos</th>
                         <th className="col-valor">Comissão Setor</th>
@@ -59,12 +59,16 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                 <tbody>
                     {dados.map((d, idx) => (
                         <tr key={idx}>
-                            <td>{formatDateFromDatabase(d.data)}</td>
-                            <td>{d.situacao}</td>
+                            <td className="col-qtd">{formatDateFromDatabase(d.data)}</td>
+                            <td className="col-qtd">{d.situacao}</td>
                             <td className="col-qtd">{d.qtd_total}</td>
                             <td className="col-qtd">{d.qtd_aptos}</td>
-                            <td className="col-valor">R$ {formatCurrencyFromDatabase(d.valor_setor)}</td>
-                            <td className="col-valor">R$ {formatCurrencyFromDatabase(d.valor_colaborador)}</td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(d.valor_setor)}
+                            </td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(d.valor_colaborador)}
+                            </td>
                         </tr>
                     ))}
                 </tbody>
