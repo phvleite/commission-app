@@ -5,11 +5,7 @@ export default function RelatorioPeriodoTodos({ resultado }) {
     const { dados, resumoSetores } = resultado.dados;
     const { vendasPeriodo = [], dataInicial, dataFinal } = resultado;
 
-    const {
-        gerarTituloPeriodo,
-        agruparPorColaborador,
-        calcularTotalGeral
-    } = useComissoes();
+    const { gerarTituloPeriodo, agruparPorColaborador, calcularTotalGeral } = useComissoes();
 
     const titulo = gerarTituloPeriodo(dataInicial, dataFinal);
 
@@ -22,27 +18,24 @@ export default function RelatorioPeriodoTodos({ resultado }) {
     // ============================
     // VALORES DO PERÍODO (VENDAS)
     // ============================
-    const totalVendas = vendasPeriodo.length > 0
-        ? vendasPeriodo.reduce((acc, v) => acc + v.valor, 0)
-        : 0;
+    const totalVendas =
+        vendasPeriodo.length > 0 ? vendasPeriodo.reduce((acc, v) => acc + v.valor, 0) : 0;
 
-    const totalComissao = vendasPeriodo.length > 0
-        ? vendasPeriodo.reduce((acc, v) => acc + v.valor_comissao_total, 0)
-        : 0;
+    const totalComissao =
+        vendasPeriodo.length > 0
+            ? vendasPeriodo.reduce((acc, v) => acc + v.valor_comissao_total, 0)
+            : 0;
 
     // ============================
     // SOMA DOS SETORES (inclui meritocracia)
     // ============================
-    const somaSetores = resumoSetores.reduce(
-        (acc, s) => acc + s.valor_total_setor,
-        0
-    );
+    const somaSetores = resumoSetores.reduce((acc, s) => acc + s.valor_total_setor, 0);
 
     // ============================
     // SOMA DOS SETORES SEM MERITOCRACIA
     // ============================
     const somaSemMeritocracia = resumoSetores
-        .filter(s => s.setor.toUpperCase() !== "MERITOCRACIA")
+        .filter((s) => s.setor.toUpperCase() !== "MERITOCRACIA")
         .reduce((acc, s) => acc + s.valor_total_setor, 0);
 
     return (
@@ -69,27 +62,37 @@ export default function RelatorioPeriodoTodos({ resultado }) {
                 <thead>
                     <tr>
                         <th>Setor</th>
-                        <th>Valor Total</th>
+                        <th className="col-valor">Valor Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {resumoSetores.map((s, idx) => (
                         <tr key={idx}>
                             <td>{s.setor}</td>
-                            <td>R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(s.valor_total_setor)}
+                            </td>
                         </tr>
                     ))}
 
                     {/* TOTAL DOS SETORES */}
                     <tr>
-                        <td><strong>Total dos Setores</strong></td>
-                        <td><strong>R$ {formatCurrencyFromDatabase(somaSetores)}</strong></td>
+                        <td>
+                            <strong>Total dos Setores</strong>
+                        </td>
+                        <td className="col-valor">
+                            <strong>R$ {formatCurrencyFromDatabase(somaSetores)}</strong>
+                        </td>
                     </tr>
 
                     {/* TOTAL SEM MERITOCRACIA */}
                     <tr>
-                        <td><strong>Total dos Setores (sem meritocracia)</strong></td>
-                        <td><strong>R$ {formatCurrencyFromDatabase(somaSemMeritocracia)}</strong></td>
+                        <td>
+                            <strong>Total dos Setores (sem meritocracia)</strong>
+                        </td>
+                        <td className="col-valor">
+                            <strong>R$ {formatCurrencyFromDatabase(somaSemMeritocracia)}</strong>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -101,7 +104,7 @@ export default function RelatorioPeriodoTodos({ resultado }) {
                     <tr>
                         <th>Colaborador</th>
                         <th>Setor</th>
-                        <th>Total no Período</th>
+                        <th className="col-valor">Total no Período</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,7 +112,9 @@ export default function RelatorioPeriodoTodos({ resultado }) {
                         <tr key={idx}>
                             <td>{c.colaborador}</td>
                             <td>{c.setor}</td>
-                            <td>R$ {formatCurrencyFromDatabase(c.totalComissao)}</td>
+                            <td className="col-valor">
+                                R$ {formatCurrencyFromDatabase(c.totalComissao)}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

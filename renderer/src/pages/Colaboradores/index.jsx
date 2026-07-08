@@ -126,6 +126,8 @@ export default function ColaboradoresPage() {
                     </div>
                 </div>
 
+            </div>
+
                 <div>
                     <button
                         className="btn-secondary"
@@ -135,8 +137,6 @@ export default function ColaboradoresPage() {
                         Limpar Filtros
                     </button>
                 </div>
-
-            </div>
 
             <hr />
 

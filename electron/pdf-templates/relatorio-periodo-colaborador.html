@@ -36,6 +36,14 @@
                 background: #eee;
             }
 
+            .col-valor {
+                text-align: right;
+            }
+
+            .col-qtd {
+                text-align: center;
+            }
+
             .info {
                 margin-bottom: 8px;
             }
@@ -82,8 +90,8 @@
                         <thead>
                             <tr>
                                 <th>Setor</th>
-                                <th>Valor Total do Setor</th>
-                                <th>Valor Total do Colaborador</th>
+                                <th class="col-valor">Valor Total do Setor</th>
+                                <th class="col-valor">Valor Total do Colaborador</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,8 +100,8 @@
                                     (s) => `
                                 <tr>
                                     <td>${s.setor}</td>
-                                    <td>R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
-                                    <td>R$ ${formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
+                                    <td class="col-valor">R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
+                                    <td class="col-valor">R$ ${formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
                                 </tr>
                             `
                                 )
@@ -107,10 +115,10 @@
                             <tr>
                                 <th>Data</th>
                                 <th>Situação</th>
-                                <th>Qtde Colab.</th>
-                                <th>Qtde Aptos</th>
-                                <th>Comissão Setor</th>
-                                <th>Comissão Colaborador</th>
+                                <th class="col-qtd">Qtde Colab.</th>
+                                <th class="col-qtd">Qtde Aptos</th>
+                                <th class="col-valor">Comissão Setor</th>
+                                <th class="col-valor">Comissão Colaborador</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,10 +128,10 @@
                                 <tr>
                                     <td>${formatDateFromDatabase(d.data)}</td>
                                     <td>${d.situacao}</td>
-                                    <td>${d.qtd_total}</td>
-                                    <td>${d.qtd_aptos}</td>
-                                    <td>R$ ${formatCurrencyFromDatabase(d.valor_setor)}</td>
-                                    <td>R$ ${formatCurrencyFromDatabase(d.valor_colaborador)}</td>
+                                    <td class="col-qtd">${d.qtd_total}</td>
+                                    <td class="col-qtd">${d.qtd_aptos}</td>
+                                    <td class="col-valor">R$ ${formatCurrencyFromDatabase(d.valor_setor)}</td>
+                                    <td class="col-valor">R$ ${formatCurrencyFromDatabase(d.valor_colaborador)}</td>
                                 </tr>
                             `
                                 )

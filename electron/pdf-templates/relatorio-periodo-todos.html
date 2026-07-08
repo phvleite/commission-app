@@ -36,6 +36,14 @@
                 background: #eee;
             }
 
+            .col-valor {
+                text-align: right;
+            }
+
+            .col-qtd {
+                text-align: center;
+            }
+
             .info {
                 margin-bottom: 8px;
             }
@@ -86,7 +94,7 @@
                             totalComissao: 0
                         };
                     }
-                    acc[key].totalComissao += item.valor_total_setor;
+                    acc[key].totalComissao += item.valor_colaborador;
                     return acc;
                 }, {});
 
@@ -103,7 +111,7 @@
                     <thead>
                         <tr>
                             <th>Setor</th>
-                            <th>Valor Total</th>
+                            <th class="col-valor">Valor Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -112,7 +120,7 @@
                                 (s) => `
                             <tr>
                                 <td>${s.setor}</td>
-                                <td>R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
+                                <td class="col-valor">R$ ${formatCurrencyFromDatabase(s.valor_total_setor)}</td>
                             </tr>
                         `
                             )
@@ -120,12 +128,12 @@
 
                         <tr>
                             <td><strong>Total dos Setores</strong></td>
-                            <td><strong>R$ ${formatCurrencyFromDatabase(somaSetores)}</strong></td>
+                            <td class="col-valor"><strong>R$ ${formatCurrencyFromDatabase(somaSetores)}</strong></td>
                         </tr>
 
                         <tr>
                             <td><strong>Total dos Setores (sem meritocracia)</strong></td>
-                            <td><strong>R$ ${formatCurrencyFromDatabase(somaSemMerito)}</strong></td>
+                            <td class="col-valor"><strong>R$ ${formatCurrencyFromDatabase(somaSemMerito)}</strong></td>
                         </tr>
                     </tbody>
                 </table>
@@ -136,7 +144,7 @@
                         <tr>
                             <th>Colaborador</th>
                             <th>Setor</th>
-                            <th>Total no Período</th>
+                            <th class="col-valor">Total no Período</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -146,7 +154,7 @@
                             <tr>
                                 <td>${c.colaborador}</td>
                                 <td>${c.setor}</td>
-                                <td>R$ ${formatCurrencyFromDatabase(c.totalComissao)}</td>
+                                <td class="col-valor">R$ ${formatCurrencyFromDatabase(c.totalComissao)}</td>
                             </tr>
                         `
                             )

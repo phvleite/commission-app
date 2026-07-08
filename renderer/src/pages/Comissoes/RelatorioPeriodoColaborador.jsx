@@ -29,16 +29,16 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                 <thead>
                     <tr>
                         <th>Setor</th>
-                        <th>Valor Total do Setor</th>
-                        <th>Valor Total do Colaborador</th>
+                        <th className="col-valor">Valor Total do Setor</th>
+                        <th className="col-valor">Valor Total do Colaborador</th>
                     </tr>
                 </thead>
                 <tbody>
                     {resumoSetores.map((s, idx) => (
                         <tr key={idx}>
                             <td>{s.setor}</td>
-                            <td>R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
-                            <td>R$ {formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
+                            <td className="col-valor">R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
+                            <td className="col-valor">R$ {formatCurrencyFromDatabase(s.valor_total_colaborador)}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -50,10 +50,10 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                     <tr>
                         <th>Data</th>
                         <th>Situação</th>
-                        <th>Qtde Colab.</th>
-                        <th>Qtde Aptos</th>
-                        <th>Comissão Setor</th>
-                        <th>Comissão Colaborador</th>
+                        <th className="col-qtd">Qtde Colab.</th>
+                        <th className="col-qtd">Qtde Aptos</th>
+                        <th className="col-valor">Comissão Setor</th>
+                        <th className="col-valor">Comissão Colaborador</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,10 +61,10 @@ export default function RelatorioPeriodoColaborador({ resultado }) {
                         <tr key={idx}>
                             <td>{formatDateFromDatabase(d.data)}</td>
                             <td>{d.situacao}</td>
-                            <td>{d.qtd_total}</td>
-                            <td>{d.qtd_aptos}</td>
-                            <td>R$ {formatCurrencyFromDatabase(d.valor_setor)}</td>
-                            <td>R$ {formatCurrencyFromDatabase(d.valor_colaborador)}</td>
+                            <td className="col-qtd">{d.qtd_total}</td>
+                            <td className="col-qtd">{d.qtd_aptos}</td>
+                            <td className="col-valor">R$ {formatCurrencyFromDatabase(d.valor_setor)}</td>
+                            <td className="col-valor">R$ {formatCurrencyFromDatabase(d.valor_colaborador)}</td>
                         </tr>
                     ))}
                 </tbody>

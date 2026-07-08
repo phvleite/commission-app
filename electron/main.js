@@ -1,6 +1,8 @@
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, shell, Menu } = require("electron");
 const path = require("path");
 const fs = require("fs");
+
+Menu.setApplicationMenu(null);
 
 ipcMain.handle("pdf:gerarPeriodoTodos", async (event, resultado) => {
     const win = new BrowserWindow({
