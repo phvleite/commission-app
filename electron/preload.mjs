@@ -1,26 +1,67 @@
 import { contextBridge } from "electron";
 import fs from "fs";
 import path from "path";
-import initSqlJs from "sql.js";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
-import { setoresAPI, setoresMigrations } from "./database/setores.js";
-import { colaboradoresAPI, colaboradoresMigrations } from "./database/colaboradores.js";
-import { situacoesAPI, situacoesMigrations } from "./database/situacoes.js";
-import { vendasAPI, vendasMigrations } from "./database/vendas.js";
-import { comissoesAPI, comissoesMigrations } from "./database/comissoes.js";
+let initSqlJs = null;
 
+import { setoresAPI, setoresMigrations } from "./database/setores.mjs";
+import { colaboradoresAPI, colaboradoresMigrations } from "./database/colaboradores.mjs";
+import { situacoesAPI, situacoesMigrations } from "./database/situacoes.mjs";
+import { vendasAPI, vendasMigrations } from "./database/vendas.mjs";
+import { comissoesAPI, comissoesMigrations } from "./database/comissoes.mjs";
+import { pdfAPI } from "./pdf.mjs";
+// ------------------------------------------------------------
+// CONFIGURAÇÕES BÁSICAS
+// ------------------------------------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.join(process.cwd(), "database.sqlite");
+const isDev =
+    process.env.NODE_ENV === "development" || process.defaultApp || !__dirname.includes("app.asar");
+
+const resourcesBase = process.resourcesPath.endsWith("app.asar")
+    ? path.dirname(process.resourcesPath)
+    : process.resourcesPath;
+
+// Recebe o caminho do AppData enviado pelo main.js
+const userDataPath = process.argv
+    .find((arg) => arg.startsWith("--userDataPath="))
+    ?.replace("--userDataPath=", "");
+
+const dbPath = isDev
+    ? path.join(__dirname, "database.sqlite") // DEV → electron/database.sqlite
+    : path.join(userDataPath, "database.sqlite"); // PRODUÇÃO → %APPDATA%/commission-app/database.sqlite
 
 let db = null;
 let SQL = null;
 
+// ------------------------------------------------------------
+// INICIALIZAÇÃO DO BANCO + SQL.js
+// ------------------------------------------------------------
 async function init() {
+    // carrega o módulo `sql.js` dinamicamente — em produção usamos o arquivo copiado em `resources`
+    if (!initSqlJs) {
+        if (isDev) {
+            const mod = await import("sql.js");
+            initSqlJs = mod.default || mod.initSqlJs || mod;
+        } else {
+            const sqlWasmJsPath = path.join(resourcesBase, "sql-wasm.js");
+            const mod = await import(pathToFileURL(sqlWasmJsPath).href);
+            initSqlJs = mod.default || mod.initSqlJs || mod;
+        }
+    }
+
     SQL = await initSqlJs({
-        locateFile: (file) => new URL(file, "http://localhost:5173").toString()
+        locateFile: (file) => {
+            if (isDev) {
+                // DEV → carrega via URL absoluta
+                return pathToFileURL(path.join(__dirname, "sql-wasm.wasm")).href;
+            }
+
+            // PRODUÇÃO → carrega via URL absoluta do resources externo
+            return pathToFileURL(path.join(resourcesBase, "sql-wasm.wasm")).href;
+        }
     });
 
     if (fs.existsSync(dbPath)) {
@@ -30,7 +71,6 @@ async function init() {
         db = new SQL.Database();
     }
 
-    // Rodar TODAS as migrations
     setoresMigrations(db);
     colaboradoresMigrations(db);
     situacoesMigrations(db);
@@ -40,6 +80,9 @@ async function init() {
     saveDatabase();
 }
 
+// ------------------------------------------------------------
+// SALVAR BANCO
+// ------------------------------------------------------------
 function saveDatabase() {
     setTimeout(() => {
         const data = db.export();
@@ -47,25 +90,25 @@ function saveDatabase() {
     }, 0);
 }
 
-// Inicializar banco ANTES de expor API
 await init();
 
-// Instanciar APIs
+// ------------------------------------------------------------
+// API EXPOSTA PARA O FRONT-END
+// ------------------------------------------------------------
 const setores = setoresAPI(db, saveDatabase);
 const colaboradores = colaboradoresAPI(db, saveDatabase);
 const situacoes = situacoesAPI(db, saveDatabase);
 const comissoes = comissoesAPI(db, saveDatabase);
-
-// vendas precisa receber comissoesAPI para recalcular comissões
 const vendas = vendasAPI(db, saveDatabase, comissoes);
+const pdf = pdfAPI();
 
-// Expor API no frontend
 contextBridge.exposeInMainWorld("api", {
     setores,
     colaboradores,
     situacoes,
     vendas,
     comissoes,
+    pdf,
 
     manutencao: {
         async dropVendas() {
@@ -77,6 +120,13 @@ contextBridge.exposeInMainWorld("api", {
 
         async dropComissoes() {
             db.run("DROP TABLE IF EXISTS comissoes");
+            db.run("DROP TABLE IF EXISTS venda_comissoes_setores");
+            comissoesMigrations(db);
+            saveDatabase();
+            return true;
+        },
+
+        async dropVendasComissoesSetores() {
             db.run("DROP TABLE IF EXISTS venda_comissoes_setores");
             comissoesMigrations(db);
             saveDatabase();

@@ -1,42 +1,31 @@
 import { useEffect, useState } from "react";
+import { formatCurrencyFromDatabase } from "../../utils/formatCurrency";
+import { formatDateFromDatabase } from "../../utils/formatDate";
 
 export default function VendaSetoresModal({ data, onClose }) {
     const [setores, setSetores] = useState([]);
 
     useEffect(() => {
         async function carregar() {
-            const lista = await window.api.comissoes.listarSetoresPorDia(data);
+            // GARANTE QUE A DATA ESTÁ NO FORMATO DO BANCO
+            const dataBanco = data.includes("/") 
+                ? data.split("/").reverse().join("-") 
+                : data;
+
+            const lista = await window.api.comissoes.listarSetoresPorDia(dataBanco);
             setSetores(lista);
         }
         carregar();
     }, [data]);
 
     return (
-        <div
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "rgba(0,0,0,0.5)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 9999
-            }}
-        >
-            <div
-                style={{
-                    background: "#fff",
-                    padding: 20,
-                    borderRadius: 8,
-                    width: "600px"
-                }}
-            >
-                <h3>Comissões por Setor — {data}</h3>
+        <div className="venda-modal-overlay">
+            <div className="venda-modal-card">
 
-                <table border="1" cellPadding="6" style={{ width: "100%", marginTop: 10 }}>
+                <h3>Comissões por Setor — {formatDateFromDatabase(data)}</h3>
+                <hr />
+
+                <table className="venda-modal-table">
                     <thead>
                         <tr>
                             <th>Setor</th>
@@ -52,7 +41,7 @@ export default function VendaSetoresModal({ data, onClose }) {
                             <tr key={s.id}>
                                 <td>{s.setor}</td>
                                 <td>{s.percentual_aplicado}%</td>
-                                <td>R$ {s.valor_total_setor.toFixed(2)}</td>
+                                <td>R$ {formatCurrencyFromDatabase(s.valor_total_setor)}</td>
                                 <td>{s.qtd_total_colaboradores}</td>
                                 <td>{s.qtd_aptos_colaboradores}</td>
                             </tr>
@@ -60,9 +49,12 @@ export default function VendaSetoresModal({ data, onClose }) {
                     </tbody>
                 </table>
 
-                <br />
+                <div className="venda-modal-actions">
+                    <button className="btn-secondary" onClick={onClose}>
+                        Fechar
+                    </button>
+                </div>
 
-                <button onClick={onClose}>Fechar</button>
             </div>
         </div>
     );

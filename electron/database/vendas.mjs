@@ -3,8 +3,8 @@ export function vendasMigrations(db) {
         CREATE TABLE IF NOT EXISTS vendas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT UNIQUE NOT NULL,
-            valor REAL NOT NULL,
-            valor_comissao_total REAL NOT NULL
+            valor INTEGER NOT NULL,
+            valor_comissao_total INTEGER NOT NULL
         );
     `);
 }
@@ -13,8 +13,9 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
     return {
 
         // SALVAR VENDA (CRIAR OU ATUALIZAR)
-        salvar(data, valor) {
-            const valorComissaoTotal = valor * 0.1;
+        salvar(data, valorFloat) {
+            const valorCentavos = Math.round(valorFloat * 100);
+            const valorComissaoCentavos = Math.round(valorCentavos * 0.1);
 
             db.run(
                 `
@@ -24,19 +25,16 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
                     valor = excluded.valor,
                     valor_comissao_total = excluded.valor_comissao_total
                 `,
-                [data, valor, valorComissaoTotal]
+                [data, valorCentavos, valorComissaoCentavos]
             );
 
-            // Gera comissões do dia
             comissoesAPI.gerar(data);
-
             saveDatabase(db);
             return true;
         },
 
-        // ALTERAR VENDA (DATA E VALOR)
-        alterar(id, novaData, novoValor) {
-            // Buscar venda antiga
+        // ALTERAR VENDA
+        alterar(id, novaData, novoValorFloat) {
             const stmtAntiga = db.prepare(`
                 SELECT * FROM vendas WHERE id = ?
             `);
@@ -44,12 +42,26 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
             const vendaAntiga = stmtAntiga.step() ? stmtAntiga.getAsObject() : null;
             stmtAntiga.free();
 
-            if (!vendaAntiga) return false;
+            if (!vendaAntiga) return { ok: false, erro: "Venda não encontrada." };
 
             const dataAntiga = vendaAntiga.data;
-            const valorComissaoTotal = novoValor * 0.1;
 
-            // Se a data mudou, apagar comissões da data antiga
+            // Verificar conflito de data
+            const stmtCheck = db.prepare(`
+                SELECT id FROM vendas WHERE data = ? AND id != ?
+            `);
+            stmtCheck.bind([novaData, id]);
+            const existeOutra = stmtCheck.step();
+            stmtCheck.free();
+
+            if (existeOutra) {
+                return { ok: false, erro: "Já existe uma venda registrada para esta data." };
+            }
+
+            const novoValorCentavos = Math.round(novoValorFloat * 100);
+            const novaComissaoCentavos = Math.round(novoValorCentavos * 0.1);
+
+            // Se a data mudou, apagar comissões antigas
             if (dataAntiga !== novaData) {
                 db.run(`DELETE FROM comissoes WHERE data = ?`, [dataAntiga]);
                 db.run(`DELETE FROM venda_comissoes_setores WHERE data = ?`, [dataAntiga]);
@@ -62,14 +74,13 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
                 SET data = ?, valor = ?, valor_comissao_total = ?
                 WHERE id = ?
                 `,
-                [novaData, novoValor, valorComissaoTotal, id]
+                [novaData, novoValorCentavos, novaComissaoCentavos, id]
             );
 
-            // Gerar comissões novas
             comissoesAPI.gerar(novaData);
-
             saveDatabase(db);
-            return true;
+
+            return { ok: true };
         },
 
         listar() {
@@ -108,6 +119,23 @@ export function vendasAPI(db, saveDatabase, comissoesAPI) {
             stmt.free();
 
             return row;
-        }
+        },
+
+        listarPorPeriodo(dataInicial, dataFinal) {
+            const stmt = db.prepare(`
+                SELECT * FROM vendas
+                WHERE data >= ? AND data <= ?
+                ORDER BY data ASC
+            `);
+
+            stmt.bind([dataInicial, dataFinal]);
+
+            const rows = [];
+            while (stmt.step()) rows.push(stmt.getAsObject());
+            stmt.free();
+
+            return rows;
+        },
+
     };
 }
