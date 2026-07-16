@@ -69,14 +69,14 @@ export default function ColaboradorList({
                                     <input
                                         type="date"
                                         className="input"
-                                        value={formatDateFromDatabase(editAdmissao)}
+                                        value={editAdmissao}
                                         onChange={(e) => setEditAdmissao(e.target.value)}
                                     />
 
                                     <input
                                         type="date"
                                         className="input"
-                                        value={formatDateFromDatabase(editDemissao)}
+                                        value={editDemissao || ""}
                                         onChange={(e) => setEditDemissao(e.target.value)}
                                     />
                                 </div>
